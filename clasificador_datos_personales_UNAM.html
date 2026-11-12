@@ -1,0 +1,377 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Datos Personales | Taller de Seguridad</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes popUp {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .slide-in { animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .pop-up { animation: popUp 0.3s ease-out forwards; }
+        
+        /* Estilos de botones interactivos */
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .option-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header Institucional -->
+    <header class="bg-blue-900 text-white p-4 shadow-md flex justify-between items-center z-10">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-file-shield text-2xl text-blue-300"></i>
+            <div>
+                <h1 class="text-xl font-bold">Clasificador de Datos Personales</h1>
+                <p class="text-xs text-blue-200">Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados</p>
+            </div>
+        </div>
+        <div id="scoreDisplay" class="hidden bg-blue-800 px-4 py-1.5 rounded-full border border-blue-700 shadow-inner font-semibold text-sm">
+            <i class="fa-solid fa-star text-yellow-400 mr-1"></i> Puntos: <span id="currentScore">0</span>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        
+        <!-- PANTALLA DE INICIO -->
+        <div id="startScreen" class="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden fade-in text-center p-8 border border-slate-200">
+            <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-scale-balanced text-5xl text-blue-600"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">¿Sabes identificar los Datos Personales?</h2>
+            <p class="text-slate-600 mb-8 leading-relaxed">
+                Como universitarios y sujetos obligados, manejamos información de terceros todos los días. En este laboratorio analizaremos diversos escenarios. 
+                Tu misión es clasificar cada elemento correctamente según el catálogo oficial del INAI.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-sm text-left">
+                <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                    <strong class="text-blue-600 block mb-1">Dato Personal</strong>
+                    Información identificativa, electrónica, laboral o de tránsito.
+                </div>
+                <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                    <strong class="text-red-600 block mb-1">Alto Riesgo</strong>
+                    Datos sensibles (salud, biometría, ideología) y datos patrimoniales. Requieren seguridad reforzada.
+                </div>
+                <div class="bg-slate-50 p-3 rounded border border-slate-200">
+                    <strong class="text-slate-600 block mb-1">No es Dato Personal</strong>
+                    Información técnica, código, institucional o anónima que no identifica a nadie.
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors text-lg">
+                <i class="fa-solid fa-play mr-2"></i> Iniciar Práctica
+            </button>
+        </div>
+
+        <!-- PANTALLA DEL QUIZ -->
+        <div id="quizScreen" class="hidden max-w-4xl w-full">
+            
+            <!-- Barra de progreso -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm font-medium text-slate-500 mb-2">
+                    <span id="progressText">Caso 1 de 6</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 16.6%;"></div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Pregunta -->
+            <div id="questionCard" class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden slide-in">
+                <div class="bg-slate-800 text-slate-100 p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-magnifying-glass-chart text-blue-400"></i>
+                    <h3 class="font-semibold">Analiza el siguiente elemento:</h3>
+                </div>
+                
+                <div class="p-8 md:p-10 text-center bg-slate-50 border-b border-slate-100 min-h-[160px] flex items-center justify-center">
+                    <p id="scenarioText" class="text-2xl font-medium text-slate-700 leading-tight"></p>
+                </div>
+                
+                <div class="p-6 bg-white">
+                    <p class="text-center text-slate-500 text-sm mb-4 font-medium">Clasifica el registro según el INAI:</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button onclick="checkAnswer('identificativo')" class="option-btn bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 py-3 px-2 rounded-lg flex flex-col items-center text-sm font-semibold">
+                            <i class="fa-solid fa-id-card text-xl mb-1"></i> Identificativo / Laboral / Tránsito
+                        </button>
+                        
+                        <button onclick="checkAnswer('patrimonial')" class="option-btn bg-white border-2 border-orange-400 text-orange-600 hover:bg-orange-50 py-3 px-2 rounded-lg flex flex-col items-center text-sm font-bold shadow-sm">
+                            <i class="fa-solid fa-money-check-dollar text-xl mb-1"></i> Patrimonial / Financiero (Alto Riesgo)
+                        </button>
+                        
+                        <button onclick="checkAnswer('sensible')" class="option-btn bg-white border-2 border-red-500 text-red-700 hover:bg-red-50 py-3 px-2 rounded-lg flex flex-col items-center text-sm font-bold shadow-sm">
+                            <i class="fa-solid fa-fingerprint text-xl mb-1"></i> Sensible (Salud, Biometría)
+                        </button>
+                        
+                        <button onclick="checkAnswer('none')" class="option-btn bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 py-3 px-2 rounded-lg flex flex-col items-center text-sm font-semibold">
+                            <i class="fa-solid fa-ban text-xl mb-1"></i> No es Dato Personal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA FINAL -->
+        <div id="endScreen" class="hidden max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden fade-in text-center p-10 border border-slate-200">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-clipboard-check text-5xl text-green-600"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-slate-800 mb-2">Práctica Completada</h2>
+            <p class="text-slate-600 mb-6">Has terminado la evaluación sobre la clasificación de la información.</p>
+            
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 inline-block mb-8 min-w-[250px]">
+                <p class="text-sm text-slate-500 uppercase font-bold tracking-wide mb-1">Tu Puntuación</p>
+                <div class="text-5xl font-black text-blue-600" id="finalScoreText">6/6</div>
+            </div>
+            
+            <p id="finalFeedbackMsg" class="text-lg text-slate-700 mb-8 font-medium"></p>
+            
+            <button onclick="location.reload()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow transition-colors">
+                <i class="fa-solid fa-arrow-rotate-right mr-2"></i> Volver a intentar
+            </button>
+        </div>
+
+    </main>
+
+    <!-- MODAL DE RETROALIMENTACIÓN -->
+    <div id="feedbackModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-slate-900 bg-opacity-70 backdrop-blur-sm"></div>
+        
+        <!-- Modal Content -->
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full relative z-10 pop-up overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div id="modalHeader" class="px-6 py-5 flex items-center gap-3 text-white">
+                <i id="modalIcon" class="fa-solid text-3xl"></i>
+                <h3 id="modalTitle" class="font-bold text-2xl">Resultado</h3>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 md:p-8 overflow-y-auto bg-slate-50 space-y-6">
+                
+                <p id="modalUserChoice" class="text-center font-medium text-slate-600 text-lg border-b border-slate-200 pb-4 mb-2"></p>
+                
+                <!-- Alerta de Alto Riesgo -->
+                <div id="riskAlert" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-4" role="alert">
+                    <p class="font-bold"><i class="fa-solid fa-triangle-exclamation"></i> ALERTA DE ALTO RIESGO</p>
+                    <p>Estos datos exigen consentimiento expreso e implementación de medidas de seguridad reforzadas (ej. cifrado AES-256).</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Perspectiva Administrativa -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-400"></div>
+                        <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-user-tie"></i></div>
+                            Perspectiva Administrativa
+                        </h4>
+                        <p id="adminFeedback" class="text-slate-600 text-sm leading-relaxed"></p>
+                    </div>
+
+                    <!-- Perspectiva TI / ISDP -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-700 shadow-sm relative overflow-hidden text-slate-300">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                        <h4 class="font-bold text-white mb-3 flex items-center gap-2">
+                            <div class="w-8 h-8 rounded bg-indigo-900/50 text-indigo-400 flex items-center justify-center border border-indigo-700/50"><i class="fa-solid fa-server"></i></div>
+                            Inventario de Sistemas (ISDP)
+                        </h4>
+                        <p id="techFeedback" class="text-sm font-mono leading-relaxed opacity-90"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-white px-6 py-4 border-t border-slate-200 flex justify-end">
+                <button onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-8 rounded-lg shadow transition-colors flex items-center gap-2">
+                    Siguiente <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de Datos de Escenarios actualizada (INAI)
+        const scenarios = [
+            {
+                text: "Cuenta CLABE, número de tarjeta y recibo de nómina de un trabajador",
+                type: "patrimonial",
+                adminDesc: "Clasificación INAI: Datos Patrimoniales y Financieros. Al igual que los sensibles, la ley exige consentimiento expreso para su tratamiento en México.",
+                techDesc: "ISDP: 'Gestión de nómina'. Requiere seguridad REFORZADA. Implementar cifrado en base de datos y transmisión segura en el ERP financiero.",
+                highRisk: true
+            },
+            {
+                text: "Huella dactilar registrada en el reloj checador de la Dirección General de Personal",
+                type: "sensible",
+                adminDesc: "Clasificación INAI: Datos Personales Sensibles (Biométricos). Es información que afecta la esfera más íntima y su vulneración conlleva un riesgo grave.",
+                techDesc: "ISDP: 'Control de Asistencia'. Riesgo de impacto ALTO. Requiere almacenamiento local seguro, cifrado y consentimiento expreso documentado.",
+                highRisk: true
+            },
+            {
+                text: "Dirección IP 132.248.58.222 y timestamp en los logs de acceso del servidor Zimbra",
+                type: "identificativo",
+                adminDesc: "Clasificación INAI: Datos Electrónicos/Tránsito. En la red de la UNAM, una IP asignada permite identificar o hacer identificable al usuario operativo.",
+                techDesc: "ISDP: 'Monitoreo perimetral y auditoría'. Datos no sensibles pero regulados. Aplicar políticas de retención y bloqueo del CADIDO a los logs (Syslog/Zimbra).",
+                highRisk: false
+            },
+            {
+                text: "Código fuente en C de una práctica de programación con sockets",
+                type: "none",
+                adminDesc: "Es código, propiedad intelectual o material académico. Al carecer de información de una persona física identificada o identificable, no le aplica la LGPDPPSO.",
+                techDesc: "Fuera de alcance. No requiere inscripción en el Inventario de Sistemas de Datos Personales (ISDP) ni reportes ante la Unidad de Transparencia.",
+                highRisk: false
+            },
+            {
+                text: "Expediente de incapacidad médica del IMSS archivado por el área de Recursos Humanos",
+                type: "sensible",
+                adminDesc: "Clasificación INAI: Datos Sensibles (De Salud). Su divulgación puede originar discriminación laboral.",
+                techDesc: "ISDP: 'Gestión médica laboral'. Riesgo de impacto CRÍTICO. El acceso debe limitarse estrictamente por RBAC y requiere almacenamiento segregado o físico bajo llave.",
+                highRisk: true
+            },
+            {
+                text: "Nombre, RFC y correo electrónico institucional de un profesor de la Facultad de Ingeniería",
+                type: "identificativo",
+                adminDesc: "Clasificación INAI: Datos Identificativos y Laborales. Permiten la gestión administrativa cotidiana pero no afectan la esfera íntima.",
+                techDesc: "ISDP: 'Gestión Docente y Administrativa'. Requiere controles básicos (contraseñas seguras, perfiles de acceso). Documentar en el portal el Aviso de Privacidad.",
+                highRisk: false
+            }
+        ];
+
+        const typeLabels = {
+            'identificativo': 'Dato Identificativo / Laboral',
+            'patrimonial': 'Dato Patrimonial',
+            'sensible': 'Dato Sensible',
+            'none': 'No es Dato Personal'
+        };
+
+        let currentIndex = 0;
+        let score = 0;
+        
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const endScreen = document.getElementById('endScreen');
+        const scenarioText = document.getElementById('scenarioText');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const currentScore = document.getElementById('currentScore');
+        const feedbackModal = document.getElementById('feedbackModal');
+        const riskAlert = document.getElementById('riskAlert');
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            scoreDisplay.classList.remove('hidden');
+            score = 0;
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentScenario = scenarios[currentIndex];
+            scenarioText.textContent = currentScenario.text;
+            progressText.textContent = `Caso ${currentIndex + 1} de ${scenarios.length}`;
+            progressBar.style.width = `${((currentIndex) / scenarios.length) * 100}%`;
+            
+            const questionCard = document.getElementById('questionCard');
+            questionCard.classList.remove('slide-in');
+            void questionCard.offsetWidth;
+            questionCard.classList.add('slide-in');
+        }
+
+        function checkAnswer(selectedType) {
+            const currentScenario = scenarios[currentIndex];
+            const isCorrect = selectedType === currentScenario.type;
+            
+            if (isCorrect) {
+                score++;
+                currentScore.textContent = score;
+                document.getElementById('modalHeader').className = "px-6 py-5 flex items-center gap-3 text-white bg-green-600";
+                document.getElementById('modalIcon').className = "fa-solid fa-circle-check text-3xl";
+                document.getElementById('modalTitle').textContent = "¡Clasificación Correcta!";
+            } else {
+                document.getElementById('modalHeader').className = "px-6 py-5 flex items-center gap-3 text-white bg-red-600";
+                document.getElementById('modalIcon').className = "fa-solid fa-circle-xmark text-3xl";
+                document.getElementById('modalTitle').textContent = "Clasificación Incorrecta";
+            }
+            
+            document.getElementById('modalUserChoice').innerHTML = `
+                Tu selección: <span class="font-bold ${isCorrect ? 'text-green-600' : 'text-red-500'}">${typeLabels[selectedType]}</span> <br>
+                Clasificación real INAI: <span class="font-bold text-blue-700">${typeLabels[currentScenario.type]}</span>
+            `;
+            
+            document.getElementById('adminFeedback').textContent = currentScenario.adminDesc;
+            document.getElementById('techFeedback').textContent = currentScenario.techDesc;
+            
+            if(currentScenario.highRisk) {
+                riskAlert.classList.remove('hidden');
+            } else {
+                riskAlert.classList.add('hidden');
+            }
+            
+            feedbackModal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            feedbackModal.classList.add('hidden');
+            currentIndex++;
+            if (currentIndex < scenarios.length) {
+                loadQuestion();
+            } else {
+                showEndScreen();
+            }
+        }
+
+        function showEndScreen() {
+            quizScreen.classList.add('hidden');
+            scoreDisplay.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+            document.getElementById('finalScoreText').textContent = `${score}/${scenarios.length}`;
+            
+            const feedbackMsg = document.getElementById('finalFeedbackMsg');
+            if (score === scenarios.length) {
+                feedbackMsg.innerHTML = "¡Excelente! <br> Tienes un dominio total sobre las categorías del INAI.";
+                feedbackMsg.className = "text-xl text-green-600 mb-8 font-bold";
+            } else {
+                feedbackMsg.innerHTML = "¡Buen trabajo! Sigue repasando las categorías oficiales.";
+                feedbackMsg.className = "text-xl text-blue-600 mb-8 font-bold";
+            }
+        }
+    </script>
+</body>
+</html>
