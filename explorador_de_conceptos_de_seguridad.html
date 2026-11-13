@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Conceptos de Seguridad | Taller</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Animaciones */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .pop-up { animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        /* Efectos para tarjetas */
+        .concept-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2), 0 8px 10px -6px rgba(59, 130, 246, 0.1); /* blue shadow */
+            border-color: #93c5fd; /* blue-300 */
+        }
+        .concept-card.discovered {
+            background-color: #f0fdf4; /* green-50 */
+            border-color: #86efac; /* green-300 */
+        }
+        .concept-card.discovered .card-icon-container {
+            background-color: #dcfce7; /* green-100 */
+            color: #166534; /* green-800 */
+        }
+        .concept-card.discovered .status-badge {
+            display: inline-flex;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 relative">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white p-5 shadow-lg flex justify-between items-center z-10 sticky top-0">
+        <div class="flex items-center gap-4">
+            <div class="bg-indigo-700 p-3 rounded-xl border border-indigo-600 shadow-inner">
+                <i class="fa-solid fa-network-wired text-2xl text-indigo-300"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold">Explorador de Conceptos</h1>
+                <p class="text-sm text-indigo-200">Fundamentos de la Seguridad Informática</p>
+            </div>
+        </div>
+        
+        <!-- Contador -->
+        <div class="bg-indigo-800 px-5 py-2.5 rounded-full border border-indigo-600 shadow-inner flex items-center gap-3">
+            <i class="fa-solid fa-graduation-cap text-indigo-300 hidden md:block"></i>
+            <span class="text-sm font-semibold hidden md:inline">Conceptos descubiertos:</span>
+            <span class="text-sm font-semibold md:hidden">Progreso:</span>
+            <div class="flex items-center gap-1 text-xl font-black bg-white text-indigo-900 px-3 py-1 rounded-full" id="scoreDisplay">
+                <span id="currentScore">0</span>
+                <span class="text-slate-400 font-normal">/</span>
+                <span class="text-slate-500 font-normal text-lg">6</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Instrucciones -->
+    <div class="bg-indigo-50 border-b border-indigo-100 p-4 text-center text-indigo-800 shadow-sm">
+        <p class="max-w-3xl mx-auto"><i class="fa-solid fa-circle-info mr-2"></i> <strong>Instrucciones:</strong> Haz clic en cada uno de los bloques para descubrir su significado. Conoce la definición administrativa y el impacto técnico de cada concepto.</p>
+    </div>
+
+    <!-- Contenedor Principal (Grid de Conceptos) -->
+    <main class="flex-grow p-6 md:p-10 flex items-center justify-center">
+        <div class="max-w-5xl w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" id="conceptsGrid">
+            <!-- Las tarjetas se generarán dinámicamente aquí -->
+        </div>
+    </main>
+
+    <!-- MODAL DE CONCEPTOS -->
+    <div id="conceptModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-slate-900 bg-opacity-75 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col relative z-10 pop-up overflow-hidden border border-slate-200">
+            
+            <!-- Modal Header (Dinámico) -->
+            <div id="modalHeader" class="text-white px-6 py-5 flex justify-between items-center bg-gradient-to-r from-indigo-700 to-indigo-900">
+                <div class="flex items-center gap-4">
+                    <div id="modalIconContainer" class="bg-white/20 p-3 rounded-full w-12 h-12 flex items-center justify-center backdrop-blur-md">
+                        <i id="modalIcon" class="fa-solid text-2xl shadow-sm"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold" id="modalTitle">Concepto</h3>
+                </div>
+                <button onclick="closeModal()" class="text-white/70 hover:text-white transition-colors hover:bg-white/10 rounded-full w-10 h-10 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body (Split Content) -->
+            <div class="flex flex-col md:flex-row flex-grow overflow-y-auto">
+                
+                <!-- Columna: Explicación Administrativa -->
+                <div class="w-full md:w-1/2 p-6 md:p-8 bg-white border-b md:border-b-0 md:border-r border-slate-200">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-regular fa-lightbulb text-2xl text-amber-500"></i>
+                        <h4 class="font-bold text-slate-800 text-lg">Explicación Administrativa</h4>
+                    </div>
+                    <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 shadow-sm text-slate-700 leading-relaxed h-[calc(100%-2.5rem)] flex items-center">
+                        <p id="adminFeedback" class="text-base"></p>
+                    </div>
+                </div>
+
+                <!-- Columna: Dato Técnico (TI) -->
+                <div class="w-full md:w-1/2 p-6 md:p-8 bg-slate-900 text-slate-300 relative overflow-hidden">
+                    <!-- Decoración fondo oscuro -->
+                    <div class="absolute -right-10 -bottom-10 opacity-10">
+                        <i class="fa-solid fa-microchip text-[150px]"></i>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 mb-4 relative z-10">
+                        <i class="fa-solid fa-gear text-2xl text-cyan-400"></i>
+                        <h4 class="font-bold text-white text-lg">Dato Técnico (Para TI)</h4>
+                    </div>
+                    
+                    <div class="bg-black/50 p-5 rounded-xl border border-slate-700 font-mono text-sm leading-relaxed h-[calc(100%-2.5rem)] relative z-10 flex items-center shadow-inner">
+                        <p id="techFeedback" class="text-cyan-50"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
+                <button onclick="closeModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-8 rounded-lg shadow-md transition-all hover:shadow-lg flex items-center gap-2">
+                    Entendido <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE ÉXITO -->
+    <div id="successScreen" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-900 bg-opacity-90 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 max-w-lg text-center mx-4 pop-up relative overflow-hidden">
+            <!-- Confeti decorativo -->
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-blue-500 to-indigo-500"></div>
+            
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner relative">
+                <i class="fa-solid fa-award text-6xl text-green-500"></i>
+                <div class="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow">
+                    <i class="fa-solid fa-check-circle text-2xl text-indigo-600"></i>
+                </div>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-slate-800 mb-4">¡Módulo Completado!</h2>
+            <p class="text-slate-600 mb-8 text-lg">Has dominado los conceptos fundamentales de la Seguridad Informática. Conocer este lenguaje es el primer paso para proteger los activos de nuestra dependencia.</p>
+            
+            <button onclick="document.getElementById('successScreen').classList.add('hidden')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2 text-lg">
+                <i class="fa-solid fa-chalkboard-user"></i> Continuar con el Taller
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGICA JS -->
+    <script>
+        // Datos proporcionados para los conceptos
+        const conceptsData = [
+            {
+                id: 'activo',
+                title: 'Activo',
+                icon: 'fa-server',
+                color: 'from-blue-600 to-blue-800',
+                admin: 'La información, computadoras y sistemas que tienen valor para la universidad y debemos proteger.',
+                tech: '> Infraestructura crítica como servidores Dell PowerEdge R740, bases de datos MySQL, volúmenes LVM y cuentas de correo Zimbra alojadas en la IP 132.248.58.222 de la DGP.'
+            },
+            {
+                id: 'vulnerabilidad',
+                title: 'Vulnerabilidad',
+                icon: 'fa-door-open',
+                color: 'from-orange-500 to-orange-700',
+                admin: 'Una debilidad, como dejar la puerta de tu oficina sin seguro, usar una contraseña fácil o no actualizar tu computadora.',
+                tech: '> Falta de parcheo en SO Ubuntu 20.04, puertos expuestos sin firewall perimetral, o código susceptible a Buffer Overflow en arquitecturas Cliente-Servidor en C.'
+            },
+            {
+                id: 'amenaza',
+                title: 'Amenaza',
+                icon: 'fa-radiation',
+                color: 'from-red-500 to-red-700',
+                admin: 'El peligro potencial que podría aprovechar esa debilidad, como un virus informático, un correo engañoso o incluso un desastre natural.',
+                tech: '> Vectores de compromiso potenciales como payloads de Metasploit, scripts maliciosos de PowerShell, o malware de macros en adjuntos .docm.'
+            },
+            {
+                id: 'atacante',
+                title: 'Atacante Informático',
+                icon: 'fa-user-ninja',
+                color: 'from-slate-700 to-slate-900',
+                admin: 'La persona u organización malintencionada que busca robar información o causar daño a la dependencia.',
+                tech: '> Actores de amenazas, desde "script kiddies" hasta APTs, que utilizan herramientas desde Kali Linux para escanear y comprometer la red universitaria.'
+            },
+            {
+                id: 'ataque',
+                title: 'Ataque Informático',
+                icon: 'fa-bolt',
+                color: 'from-yellow-500 to-amber-600',
+                admin: 'La acción real de hacer daño, como cuando alguien adivina tu contraseña, suplanta tu identidad e ingresa a tus sistemas.',
+                tech: '> Explotación activa, como un ataque de Intercepción haciendo sniffing en texto plano en la red (analizable vía tcpdump/tshark), o ejecución de ataques de fuerza bruta y DDoS.'
+            },
+            {
+                id: 'triada',
+                title: 'Triada CIA',
+                icon: 'fa-shield-halved',
+                color: 'from-green-500 to-emerald-700',
+                admin: 'Las 3 reglas de oro: Confidencialidad para que solo tú lo veas, Integridad para que nadie lo altere y Disponibilidad para que el sistema funcione cuando lo necesites.',
+                tech: '> C: Cifrado con librerías OpenSSL y llaves públicas/privadas.<br>> I: Comprobación de hashes SHA-256.<br>> A: Alta disponibilidad usando RAID 1 por software con mdadm y respaldos automatizados.'
+            }
+        ];
+
+        let discoveredConcepts = new Set();
+        const gridContainer = document.getElementById('conceptsGrid');
+        const modal = document.getElementById('conceptModal');
+        const scoreCounter = document.getElementById('currentScore');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const successScreen = document.getElementById('successScreen');
+
+        // Generar Tarjetas Dinámicamente
+        function renderCards() {
+            gridContainer.innerHTML = '';
+            conceptsData.forEach(concept => {
+                const card = document.createElement('div');
+                card.id = `card-${concept.id}`;
+                card.className = 'concept-card bg-white rounded-2xl p-6 border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center text-center h-48 relative overflow-hidden group';
+                card.onclick = () => openModal(concept);
+                
+                card.innerHTML = `
+                    <div class="status-badge hidden absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full items-center gap-1 shadow-sm z-10">
+                        <i class="fa-solid fa-check"></i> Visto
+                    </div>
+                    <div class="card-icon-container w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 mb-4 transition-colors duration-300 relative z-10 group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-500">
+                        <i class="fa-solid ${concept.icon} text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-700 relative z-10 group-hover:text-blue-600 transition-colors">${concept.title}</h3>
+                    <!-- Fondo decorativo sutil en hover -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-slate-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+
+        // Lógica del Modal
+        function openModal(concept) {
+            // Llenar contenido
+            document.getElementById('modalTitle').textContent = concept.title;
+            document.getElementById('modalIcon').className = `fa-solid ${concept.icon}`;
+            document.getElementById('adminFeedback').innerHTML = concept.admin;
+            document.getElementById('techFeedback').innerHTML = concept.tech;
+            
+            // Estilos del header del modal (cambia según la tarjeta)
+            const header = document.getElementById('modalHeader');
+            header.className = `text-white px-6 py-5 flex justify-between items-center bg-gradient-to-r ${concept.color}`;
+
+            // Actualizar progreso si es nuevo
+            if (!discoveredConcepts.has(concept.id)) {
+                discoveredConcepts.add(concept.id);
+                updateProgress(concept.id);
+            }
+
+            // Mostrar
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            
+            // Checar si se completó el juego después de cerrar
+            if (discoveredConcepts.size === conceptsData.length) {
+                setTimeout(() => {
+                    successScreen.classList.remove('hidden');
+                }, 400); // Pequeño delay para que cierre el modal primero
+            }
+        }
+
+        function updateProgress(conceptId) {
+            // Actualizar contador
+            scoreCounter.textContent = discoveredConcepts.size;
+            
+            // Animación del número
+            scoreDisplay.classList.add('animate-bounce');
+            setTimeout(() => scoreDisplay.classList.remove('animate-bounce'), 1000);
+
+            // Marcar tarjeta como descubierta
+            const card = document.getElementById(`card-${conceptId}`);
+            if (card) {
+                card.classList.add('discovered');
+            }
+        }
+
+        // Inicializar
+        renderCards();
+
+    </script>
+</body>
+</html>
