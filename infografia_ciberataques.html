@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: 4 Ciberataques Clave</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Animación de entrada */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        /* Retrasos escalonados para las tarjetas */
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-slate-800">
+
+    <div class="max-w-4xl mx-auto space-y-8">
+        
+        <!-- Encabezado de la Infografía -->
+        <header class="text-center animate-fade-up bg-white rounded-3xl p-8 shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-red-500 to-green-500"></div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
+                Infografía: 4 Ciberataques Clave
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto">
+                Conoce las amenazas y cómo operan antes de entrar al simulador interactivo de la Tríada CID.
+            </p>
+        </header>
+
+        <!-- Contenedor de las Tarjetas -->
+        <div class="space-y-6">
+
+            <!-- Card 1: Sniffer (Azul) -->
+            <article class="flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-8 border-blue-500 animate-fade-up delay-100 group">
+                <!-- Icon & Title side -->
+                <div class="bg-blue-50 p-6 md:w-1/3 flex flex-col items-center justify-center text-blue-600 text-center border-b md:border-b-0 md:border-r border-blue-100 relative overflow-hidden">
+                    <i class="fa-solid fa-satellite-dish text-6xl mb-4 group-hover:scale-110 transition-transform duration-300"></i>
+                    <h2 class="text-2xl font-bold mb-1">Ataque Sniffer</h2>
+                    <span class="text-sm font-semibold uppercase tracking-wider opacity-80">(Intercepción)</span>
+                </div>
+                <!-- Content side -->
+                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-center">
+                    <p class="text-slate-700 mb-5 leading-relaxed text-lg">
+                        <i class="fa-solid fa-quote-left text-blue-200 mr-2"></i>
+                        Es como alguien <strong>"escuchando" a escondidas</strong> tus conversaciones. El atacante captura la información mientras viaja por la red sin alterarla.
+                    </p>
+                    <div class="bg-slate-900 rounded-lg p-4 mb-5 border-l-4 border-blue-500 shadow-inner">
+                        <p class="text-xs text-blue-400 font-bold uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-microchip"></i> Nota Técnica</p>
+                        <p class="font-mono text-sm text-slate-300">Captura de paquetes en texto plano en la red local.</p>
+                    </div>
+                    <div class="mt-auto">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border border-blue-200 shadow-sm">
+                            <i class="fa-solid fa-shield-halved"></i> Pilar Afectado: Confidencialidad
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Card 2: Ransomware (Rojo) -->
+            <article class="flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-8 border-red-500 animate-fade-up delay-200 group">
+                <div class="bg-red-50 p-6 md:w-1/3 flex flex-col items-center justify-center text-red-600 text-center border-b md:border-b-0 md:border-r border-red-100">
+                    <i class="fa-solid fa-skull-crossbones text-6xl mb-4 group-hover:scale-110 transition-transform duration-300"></i>
+                    <h2 class="text-2xl font-bold mb-1">Ransomware</h2>
+                    <span class="text-sm font-semibold uppercase tracking-wider opacity-80">(Cifrado Malicioso)</span>
+                </div>
+                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-center">
+                    <p class="text-slate-700 mb-5 leading-relaxed text-lg">
+                        <i class="fa-solid fa-quote-left text-red-200 mr-2"></i>
+                        Un <strong>secuestro digital</strong>. Bloquea el acceso a tus archivos e información hasta que se pague un rescate, y a menudo amenaza con publicar datos privados.
+                    </p>
+                    <div class="bg-slate-900 rounded-lg p-4 mb-5 border-l-4 border-red-500 shadow-inner">
+                        <p class="text-xs text-red-400 font-bold uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-microchip"></i> Nota Técnica</p>
+                        <p class="font-mono text-sm text-slate-300">Cifrado fuerte no autorizado y tácticas de doble extorsión.</p>
+                    </div>
+                    <div class="mt-auto">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-red-100 text-red-800 border border-red-200 shadow-sm">
+                            <i class="fa-solid fa-shield-halved"></i> Pilares: Confidencialidad y Disponibilidad
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Card 3: DDoS (Verde) -->
+            <article class="flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-8 border-green-500 animate-fade-up delay-300 group">
+                <div class="bg-green-50 p-6 md:w-1/3 flex flex-col items-center justify-center text-green-600 text-center border-b md:border-b-0 md:border-r border-green-100">
+                    <i class="fa-solid fa-server text-6xl mb-4 group-hover:scale-110 transition-transform duration-300 relative">
+                        <i class="fa-solid fa-bolt text-3xl absolute -bottom-2 -right-3 text-green-400"></i>
+                    </i>
+                    <h2 class="text-2xl font-bold mb-1 mt-2">Ataque DDoS</h2>
+                    <span class="text-sm font-semibold uppercase tracking-wider opacity-80">(Denegación de Servicio)</span>
+                </div>
+                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-center">
+                    <p class="text-slate-700 mb-5 leading-relaxed text-lg">
+                        <i class="fa-solid fa-quote-left text-green-200 mr-2"></i>
+                        Es como un <strong>embotellamiento masivo intencional</strong>. Envía tantas solicitudes falsas a un sistema que este colapsa y nadie más puede entrar.
+                    </p>
+                    <div class="bg-slate-900 rounded-lg p-4 mb-5 border-l-4 border-green-500 shadow-inner">
+                        <p class="text-xs text-green-400 font-bold uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-microchip"></i> Nota Técnica</p>
+                        <p class="font-mono text-sm text-slate-300">Inundación de solicitudes para agotar recursos (CPU, memoria, ancho de banda).</p>
+                    </div>
+                    <div class="mt-auto">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-200 shadow-sm">
+                            <i class="fa-solid fa-shield-halved"></i> Pilar Afectado: Disponibilidad
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Card 4: Inyección de Código (Naranja) -->
+            <article class="flex flex-col md:flex-row bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-8 border-orange-500 animate-fade-up delay-400 group">
+                <div class="bg-orange-50 p-6 md:w-1/3 flex flex-col items-center justify-center text-orange-600 text-center border-b md:border-b-0 md:border-r border-orange-100">
+                    <i class="fa-solid fa-code text-6xl mb-4 group-hover:scale-110 transition-transform duration-300 relative">
+                        <i class="fa-solid fa-bug text-2xl absolute -bottom-1 -right-2 text-orange-400"></i>
+                    </i>
+                    <h2 class="text-2xl font-bold mb-1">Inyección de Código</h2>
+                    <span class="text-sm font-semibold uppercase tracking-wider opacity-80">(Modificación)</span>
+                </div>
+                <div class="p-6 md:p-8 md:w-2/3 flex flex-col justify-center">
+                    <p class="text-slate-700 mb-5 leading-relaxed text-lg">
+                        <i class="fa-solid fa-quote-left text-orange-200 mr-2"></i>
+                        Un <strong>engaño al sistema</strong>. El atacante introduce comandos falsos en un formulario web para alterar, borrar o manipular la información almacenada.
+                    </p>
+                    <div class="bg-slate-900 rounded-lg p-4 mb-5 border-l-4 border-orange-500 shadow-inner">
+                        <p class="text-xs text-orange-400 font-bold uppercase mb-1 flex items-center gap-2"><i class="fa-solid fa-microchip"></i> Nota Técnica</p>
+                        <p class="font-mono text-sm text-slate-300">Explotación de vulnerabilidades (como SQL Injection) para ejecutar comandos directos en la base de datos.</p>
+                    </div>
+                    <div class="mt-auto">
+                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold bg-orange-100 text-orange-800 border border-orange-200 shadow-sm">
+                            <i class="fa-solid fa-shield-halved"></i> Pilar Afectado: Integridad
+                        </span>
+                    </div>
+                </div>
+            </article>
+
+        </div>
+        
+        <!-- Footer de la infografía -->
+        <footer class="text-center mt-12 animate-fade-up delay-400">
+            <p class="text-slate-500 text-sm italic">
+                <i class="fa-solid fa-arrow-down mr-2 animate-bounce"></i> 
+                Ahora estás listo para el simulador de la Tríada CID
+            </p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
