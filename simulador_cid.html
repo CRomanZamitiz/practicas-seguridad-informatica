@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador Interactivo de la Tríada CID</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+        p.subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        /* Estructura de la Tríada */
+        .triad-container {
+            position: relative;
+            width: 360px;
+            height: 280px;
+            margin: 0 auto 30px auto;
+        }
+        .pillar {
+            position: absolute;
+            font-weight: bold;
+            padding: 12px 0;
+            border-radius: 6px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 140px;
+            text-align: center;
+            box-sizing: border-box;
+            z-index: 2; /* Para que los botones estén sobre las líneas */
+        }
+        #p-confidencialidad {
+            background-color: #1d4ed8; /* Azul */
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #p-integridad {
+            background-color: #e65c00; /* Naranja oscuro */
+            bottom: 0;
+            left: 0;
+        }
+        #p-disponibilidad {
+            background-color: #047857; /* Verde */
+            bottom: 0;
+            right: 0;
+        }
+        /* Líneas conectoras del triángulo reales usando SVG */
+        .triangle-wire {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        /* Estados de afectación (roto/afectado) */
+        .pillar.compromised {
+            background-color: #dc2626 !important; /* Rojo de alerta */
+            animation: shake 0.5s;
+            text-decoration: line-through;
+            opacity: 0.9;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        /* Controles de Escenarios */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        button {
+            background-color: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #334155;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+        }
+        button.active {
+            background-color: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+        /* Panel de Explicación */
+        .explanation-panel {
+            background-color: #f8fafc;
+            border-left: 6px solid #cbd5e1;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            text-align: left;
+            min-height: 100px;
+            transition: all 0.3s ease;
+        }
+        .explanation-panel h3 {
+            margin-top: 0;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Explorador Interactivo: Tríada CID</h1>
+    <p class="subtitle">Selecciona un escenario de incidente para analizar qué pilares de la seguridad de la información se ven comprometidos.</p>
+
+    <div class="triad-container">
+        <svg class="triangle-wire">
+            <polygon points="180,20 70,260 290,260" fill="none" stroke="#ccc" stroke-width="4" stroke-dasharray="10,6" />
+        </svg>
+        
+        <div id="p-confidencialidad" class="pillar">Confidencialidad</div>
+        <div id="p-integridad" class="pillar">Integridad</div>
+        <div id="p-disponibilidad" class="pillar">Disponibilidad</div>
+    </div>
+
+    <div class="controls">
+        <button onclick="simular('sniffer')">Ataque Sniffer (Intercepción)</button>
+        <button onclick="simular('ransomware')">Ransomware (Cifrado Malicioso)</button>
+        <button onclick="simular('ddos')">Ataque DDoS (Denegación)</button>
+        <button onclick="simular('inyeccion')">Inyección de Código (Modificación)</button>
+    </div>
+
+    <div id="panel-explicacion" class="explanation-panel">
+        <h3>Inicio del Simulador</h3>
+        <p>Haz clic en cualquiera de los escenarios de ataque de arriba para observar el impacto inmediato en los componentes de la Tríada CID y analizar las implicaciones teóricas organizacionales.</p>
+    </div>
+</div>
+
+<script>
+    const escenarios = {
+        sniffer: {
+            titulo: "Ataque Sniffer (Intercepción de Red)",
+            border: "#1d4ed8",
+            comprometidos: ["p-confidencialidad"],
+            texto: "<strong>Pilares Afectados:</strong> Confidencialidad.<br><br><strong>Análisis:</strong> Al capturar paquetes de datos que viajan en texto plano a través de la red local (como en el caso de un servidor sin cifrar), el atacante puede leer mensajes, credenciales y secretos de diseño. Dado que solo está 'escuchando' pasivamente, la información no se altera (se mantiene la Integridad) y el servicio sigue operativo (se mantiene la Disponibilidad), pero el secreto de la información se ha roto por completo."
+        },
+        ransomware: {
+            titulo: "Ransomware (Cifrado Malicioso de Archivos)",
+            border: "#dc2626",
+            comprometidos: ["p-confidencialidad", "p-disponibilidad"],
+            texto: "<strong>Pilares Afectados:</strong> Confidencialidad y Disponibilidad.<br><br><strong>Análisis:</strong> El ransomware secuestra los datos de la organización mediante un cifrado fuerte no autorizado. Rompe la <strong>Disponibilidad</strong> porque los usuarios legítimos ya no pueden acceder a los sistemas o archivos para operar. Frecuentemente, también quebranta la <strong>Confidencialidad</strong> debido a las tácticas modernas de doble extorsión, donde los atacantes extraen los datos confidenciales antes de cifrarlos para amenazar con filtrarlos públicamente."
+        },
+        ddos: {
+            titulo: "Ataque DDoS (Denegación de Servicio Distribuida)",
+            border: "#047857",
+            comprometidos: ["p-disponibilidad"],
+            texto: "<strong>Pilares Afectados:</strong> Disponibilidad.<br><br><strong>Análisis:</strong> Este ataque inunda los servidores o canales de comunicación con millones de solicitudes falsas simultáneas hasta agotar los recursos del sistema (CPU, memoria o ancho de banda). El servidor se congela o colapsa, impidiendo que los usuarios autorizados accedan al servicio. Las bases de datos no son leídas ni modificadas (la Confidencialidad y la Integridad permanecen intactas), pero el sistema es completamente inútil mientras dure el ataque."
+        },
+        inyeccion: {
+            titulo: "Inyección de Código (Modificación de Base de Datos)",
+            border: "#e65c00",
+            comprometidos: ["p-integridad"],
+            texto: "<strong>Pilares Afectados:</strong> Integridad.<br><br><strong>Análisis:</strong> Al explotar una vulnerabilidad en un formulario web (como SQL Injection), el atacante logra ejecutar comandos directos en la base de datos. Esto le permite alterar registros legítimos (por ejemplo, modificar montos financieros, cambiar calificaciones o manipular bitácoras). La información deja de ser confiable y exacta, destruyendo la confianza en el sistema. Dependiendo del comando, podría derivar también en accesos no autorizados."
+        }
+    };
+
+    function simular(tipo) {
+        // Resetear estilos anteriores
+        document.querySelectorAll('.pillar').forEach(p => p.classList.remove('compromised'));
+        document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+        
+        // Obtener datos del escenario
+        const data = escenarios[tipo];
+        
+        // Activar botón actual
+        const btn = event.target;
+        btn.classList.add('active');
+        
+        // Comprometer los pilares correspondientes
+        data.comprometidos.forEach(id => {
+            document.getElementById(id).classList.add('compromised');
+        });
+        
+        // Actualizar panel de explicación
+        const panel = document.getElementById('panel-explicacion');
+        panel.style.borderLeftColor = data.border;
+        panel.innerHTML = `<h3>${data.titulo}</h3><p>${data.texto}</p>`;
+    }
+</script>
+
+</body>
+</html>
