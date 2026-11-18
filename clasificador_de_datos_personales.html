@@ -234,15 +234,17 @@
             },
             {
                 text: "Dirección IP 132.248.59.6 y timestamp en los logs de acceso del servidor de correo",
-                type: "personal",
-                adminDesc: "Aunque parezcan puros números de computadora, en la red de la universidad esta información permite rastrear e identificar exactamente qué usuario estaba usando esa máquina a esa hora.",
-                techDesc: "Dato personal identificativo indirecto. Los logs de auditoría en Zimbra (o cualquier MTA) deben retenerse según la política de seguridad y documentarse en el RAT como actividad de 'Monitoreo perimetral y auditoría'."
+                type: "identificativo",
+                adminDesc: "Clasificación INAI: Datos Electrónicos/Tránsito. En la red de la UNAM, una IP asignada permite identificar o hacer identificable al usuario operativo.",
+                techDesc: "ISDP: 'Monitoreo perimetral y auditoría'. Datos no sensibles pero regulados. Aplicar políticas de retención y bloqueo del CADIDO a los logs del servidor.",
+                highRisk: false
             },
             {
-                text: "Código fuente en C de una práctica de sockets",
+                text: "Código fuente de una aplicación web del Departamento de TI",
                 type: "none",
-                adminDesc: "Es solamente un trabajo escolar, un algoritmo o instrucciones para la computadora. Al no contener información que describa o identifique a una persona física, no le aplica esta Ley.",
-                techDesc: "Es propiedad intelectual o trabajo académico, pero al carecer de PII (Personally Identifiable Information), queda fuera del alcance de la LGPDPPSO. No es necesario declararlo en el RAT de la dependencia."
+                adminDesc: "Es código, propiedad intelectual o material académico. Al carecer de información de una persona física identificada o identificable, no le aplica la LGPDPPSO.",
+                techDesc: "Fuera de alcance. No requiere inscripción en el Inventario de Sistemas de Datos Personales (ISDP) ni reportes ante la Unidad de Transparencia.",
+                highRisk: false
             },
             {
                 text: "Expediente de incapacidad médica del IMSS de una secretaria",
