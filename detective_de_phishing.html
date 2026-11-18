@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detective de Phishing | Taller de Seguridad</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        /* Animaciones para el modal */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-overlay {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .modal-content {
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        /* Estilos interactivos para las pistas */
+        .clue-element {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: inline-block;
+        }
+        .clue-element:hover {
+            background-color: rgba(254, 226, 226, 0.5); /* red-100 con opacidad */
+            border-radius: 4px;
+        }
+        .clue-found {
+            background-color: #fee2e2 !important; /* bg-red-100 */
+            border: 2px dashed #ef4444 !important; /* border-red-500 */
+            border-radius: 4px;
+            padding: 2px 4px;
+            margin: -2px -4px; /* Para no alterar el layout */
+        }
+
+        /* Tooltip falso para el enlace malicioso */
+        .fake-tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937; /* gray-800 */
+            color: #fff;
+            text-align: center;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin-bottom: 5px;
+        }
+        .fake-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        .clue-link:hover .fake-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col">
+
+    <!-- Navbar / Header -->
+    <header class="bg-blue-900 text-white p-4 shadow-md flex flex-col md:flex-row justify-between items-center z-10 relative">
+        <div class="flex items-center gap-3 mb-3 md:mb-0">
+            <i class="fa-solid fa-user-secret text-2xl text-blue-300"></i>
+            <div>
+                <h1 class="text-xl font-bold">Detective de Phishing</h1>
+                <p class="text-xs text-blue-200">Taller de Prácticas sobre Seguridad Informática</p>
+            </div>
+        </div>
+        
+        <!-- Gamificación: Contador -->
+        <div class="bg-blue-800 rounded-full px-6 py-2 border border-blue-700 shadow-inner flex items-center gap-3">
+            <i class="fa-solid fa-flag text-red-400"></i>
+            <span class="font-semibold">Banderas rojas encontradas:</span>
+            <span id="counter" class="text-xl font-bold bg-white text-blue-900 px-3 py-1 rounded-full">0 / 5</span>
+        </div>
+    </header>
+
+    <!-- Instrucciones -->
+    <div class="bg-yellow-50 border-b border-yellow-200 p-3 text-center text-sm text-yellow-800">
+        <i class="fa-solid fa-circle-info mr-2"></i> <strong>Instrucciones:</strong> Analiza el siguiente correo electrónico y haz clic en los elementos que consideres sospechosos. Hay 5 "Banderas Rojas" ocultas.
+    </div>
+
+    <!-- Contenedor Principal (Simulación de Cliente de Correo) -->
+    <main class="flex-grow flex overflow-hidden">
+        
+        <!-- Sidebar falso (Oculto en móviles) -->
+        <aside class="hidden md:block w-64 bg-gray-50 border-r border-gray-200 p-4">
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded shadow mb-6 transition">
+                <i class="fa-solid fa-plus mr-2"></i> Nuevo mensaje
+            </button>
+            <nav class="space-y-2">
+                <a href="#" class="block px-4 py-2 rounded bg-blue-100 text-blue-800 font-medium"><i class="fa-solid fa-inbox mr-3"></i> Bandeja de entrada (1)</a>
+                <a href="#" class="block px-4 py-2 rounded text-gray-600 hover:bg-gray-200"><i class="fa-solid fa-paper-plane mr-3"></i> Enviados</a>
+                <a href="#" class="block px-4 py-2 rounded text-gray-600 hover:bg-gray-200"><i class="fa-solid fa-trash mr-3"></i> Papelera</a>
+                <a href="#" class="block px-4 py-2 rounded text-gray-600 hover:bg-gray-200"><i class="fa-solid fa-triangle-exclamation mr-3"></i> Spam</a>
+            </nav>
+        </aside>
+
+        <!-- Vista del correo -->
+        <section class="flex-grow p-4 md:p-8 overflow-y-auto">
+            <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200">
+                
+                <!-- Cabecera del correo -->
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">[URGENTE] Acción Requerida: Suspensión inminente de cuenta universitaria</h2>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl font-bold flex-shrink-0">
+                            U
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-semibold text-gray-800">
+                                        Soporte Técnico UNAM 
+                                        <!-- BANDERA ROJA 1: Dominio falso -->
+                                        <span class="clue-element text-sm font-normal text-gray-500 ml-2 px-1" data-id="1">&lt;soporte@unam-seguridad.info&gt;</span>
+                                    </p>
+                                    <p class="text-sm text-gray-500">Para: 
+                                        <!-- BANDERA ROJA 2: Saludo genérico -->
+                                        <span class="clue-element px-1" data-id="2">Estimado usuario</span>
+                                    </p>
+                                </div>
+                                <div class="text-sm text-gray-400">
+                                    <i class="fa-solid fa-paperclip mr-1"></i> Hoy, 11:42 a.m.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cuerpo del correo -->
+                <div class="p-6 text-gray-700 leading-relaxed space-y-4">
+                    <p>
+                        Estimado(a),
+                    </p>
+                    <p>
+                        Se ha detectado un inicio de sesión inusual en su cuenta institucional desde una dirección IP no reconocida. Por motivos de seguridad y cumplimiento normativo, el acceso a sus servicios ha sido restringido preventivamente.
+                    </p>
+                    
+                    <!-- BANDERA ROJA 3: Sentido de urgencia extrema -->
+                    <div class="bg-red-50 p-4 border-l-4 border-red-500 rounded my-4">
+                        <p class="clue-element text-red-800 font-medium px-1" data-id="3">
+                            Tiene exactamente 12 horas para verificar su identidad. De no hacerlo, su cuenta, correo y acceso a la plataforma serán eliminados de manera permanente e irreversible, perdiendo toda su información almacenada.
+                        </p>
+                    </div>
+
+                    <p>
+                        Para restaurar su acceso inmediatamente, por favor valide sus credenciales utilizando nuestro portal seguro:
+                    </p>
+
+                    <!-- BANDERA ROJA 4: Enlace engañoso -->
+                    <div class="text-center my-6">
+                        <span class="clue-element clue-link bg-blue-600 text-white px-6 py-2 rounded font-medium inline-block shadow" data-id="4">
+                            Haga clic aquí para actualizar su contraseña
+                            <span class="fake-tooltip">http://192.168.4.15/login-fake/auth.php</span>
+                        </span>
+                    </div>
+
+                    <p>
+                        Adicionalmente, hemos adjuntado un reporte detallado con los intentos de acceso fallidos registrados. Por favor descárguelo y revíselo.
+                    </p>
+
+                    <!-- BANDERA ROJA 5: Archivo adjunto sospechoso -->
+                    <div class="inline-block border border-gray-200 rounded p-3 bg-gray-50 mt-2 clue-element" data-id="5">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-file-zipper text-3xl text-gray-400"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-blue-600">Reporte_Accesos_Anomalos.zip</p>
+                                <p class="text-xs text-gray-500">24 KB</p>
+                            </div>
+                            <i class="fa-solid fa-download text-gray-400 ml-4"></i>
+                        </div>
+                    </div>
+
+                    <p class="mt-8 text-sm text-gray-500">
+                        Atentamente,<br>
+                        Departamento de Ciberseguridad y Monitoreo<br>
+                        Universidad Nacional Autónoma de México
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Base (Oculto por defecto) -->
+    <div id="infoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black bg-opacity-60 modal-overlay backdrop-blur-sm"></div>
+        
+        <!-- Modal Content -->
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 relative z-10 modal-content overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header Modal -->
+            <div id="modalHeader" class="bg-red-500 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    ¡Bandera Roja Encontrada!
+                </h3>
+                <button onclick="closeModal()" class="text-white hover:text-red-200 transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Body Modal -->
+            <div class="p-6 overflow-y-auto">
+                <!-- Explicación Sencilla (Para todos) -->
+                <div class="mb-6">
+                    <h4 class="text-gray-800 font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-regular fa-lightbulb text-yellow-500"></i>
+                        ¿Por qué es peligroso? (Explicación general)
+                    </h4>
+                    <p id="simpleExplanation" class="text-gray-600 text-sm leading-relaxed bg-gray-50 p-3 rounded border border-gray-100"></p>
+                </div>
+
+                <!-- Explicación Técnica (Para TI) -->
+                <div>
+                    <h4 class="text-blue-900 font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-microchip text-blue-500"></i>
+                        Dato Técnico (Para el equipo de TI)
+                    </h4>
+                    <p id="techExplanation" class="text-sm font-mono text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 leading-relaxed"></p>
+                </div>
+            </div>
+            
+            <!-- Footer Modal -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 text-right">
+                <button onclick="closeModal()" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-6 rounded transition shadow">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Felicitación (Oculto por defecto) -->
+    <div id="successModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-blue-900 bg-opacity-80 modal-overlay backdrop-blur-sm"></div>
+        
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 relative z-10 modal-content p-8 text-center">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-shield-check text-5xl text-green-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Misión Cumplida!</h2>
+            <p class="text-gray-600 mb-6">Has identificado exitosamente las 5 banderas rojas de este intento de Phishing. Tienes buen ojo para proteger la información de la institución.</p>
+            <button onclick="document.getElementById('successModal').classList.add('hidden')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded shadow-lg transition">
+                Cerrar simulación
+            </button>
+        </div>
+    </div>
+
+    <!-- Lógica de la aplicación -->
+    <script>
+        // Base de datos de las pistas (Red Flags)
+        const cluesData = {
+            1: {
+                title: "Dominio de remitente falso",
+                simple: "El correo parece venir de soporte, pero si observas lo que está después de la arroba (@unam-seguridad.info), notarás que no es el dominio oficial (@unam.mx). Los ciberdelincuentes compran dominios parecidos para engañar a tu vista rápida.",
+                tech: "Ataque de suplantación de identidad (Spoofing) utilizando un dominio Typo-squatting. Para mitigar esto, es crucial tener configurados y validar los registros SPF, DKIM y DMARC en los gateways de correo (Secure Email Gateways)."
+            },
+            2: {
+                title: "Saludo genérico",
+                simple: "Las instituciones o bancos legítimos suelen dirigirse a ti por tu nombre completo (Ej. 'Estimado Carlos Román'). Cuando leas 'Estimado usuario' o 'Estimado cliente', desconfía, ya que indica que el mismo mensaje fue enviado a miles de personas a ciegas.",
+                tech: "Ausencia de personalización en la campaña. Esto es indicativo de un ataque de Phishing masivo (Spray and Pray) utilizando herramientas automatizadas, en lugar de un ataque dirigido (Spear Phishing)."
+            },
+            3: {
+                title: "Sentido de urgencia / Pánico",
+                simple: "El texto amenaza con eliminar tu cuenta en 12 horas si no actúas ya. Esto es una trampa psicológica muy común. Quieren asustarte para que des clic rápido sin detenerte a pensar o revisar con calma el correo.",
+                tech: "Uso de técnicas de Ingeniería Social que buscan crear disonancia cognitiva y un sentido de urgencia en la víctima, saltándose el análisis lógico. Suele ser el 'gancho' o pretexto principal del ataque."
+            },
+            4: {
+                title: "Enlace engañoso (Ocultación de URL)",
+                simple: "El botón dice 'Haga clic aquí', pero si pasas el ratón por encima (sin hacer clic), verás que en realidad te lleva a una página con números extraños (una dirección IP) que no tiene nada que ver con la institución. Nunca des tus contraseñas ahí.",
+                tech: "Uso de anclaje HTML (etiqueta <a>) malicioso. El atacante enmascara la URL de destino que probablemente aloja una página clonada para recolección de credenciales (Credential Harvesting) o inyecta un framework de ataque Man-in-the-Middle (MitM) como Evilginx."
+            },
+            5: {
+                title: "Archivo adjunto malicioso",
+                simple: "El área de soporte rara vez te enviará archivos comprimidos (.zip) o programas (.exe) de la nada. Los delincuentes esconden virus dentro de estos archivos. Si lo descargas y lo abres, podrías infectar tu computadora y comprometer la red de la oficina.",
+                tech: "El archivo probablemente es un Dropper o Downloader (malware inicial). Al descomprimirlo y ejecutar el payload, puede instalar Ransomware, Keyloggers o abrir una puerta trasera (RAT) comprometiendo el endpoint de la víctima."
+            }
+        };
+
+        // Estado del juego
+        let foundClues = new Set();
+        const totalClues = Object.keys(cluesData).length;
+
+        // Elementos del DOM
+        const counterEl = document.getElementById('counter');
+        const modal = document.getElementById('infoModal');
+        const successModal = document.getElementById('successModal');
+        const simpleExplanationEl = document.getElementById('simpleExplanation');
+        const techExplanationEl = document.getElementById('techExplanation');
+        const clueElements = document.querySelectorAll('.clue-element');
+
+        // Inicializar eventos de clic
+        clueElements.forEach(element => {
+            element.addEventListener('click', function(e) {
+                // Prevenir comportamiento por defecto de enlaces si existieran
+                e.preventDefault(); 
+                
+                const clueId = this.getAttribute('data-id');
+                
+                // Si la pista no ha sido encontrada aún
+                if (!foundClues.has(clueId)) {
+                    foundClues.add(clueId);
+                    
+                    // Cambiar estilo visual
+                    this.classList.add('clue-found');
+                    // Remover hover engañoso
+                    this.classList.remove('hover:bg-red-100');
+                    
+                    // Actualizar contador
+                    updateCounter();
+                }
+                
+                // Mostrar la información en el modal
+                showModal(clueId);
+            });
+        });
+
+        // Actualizar UI del contador
+        function updateCounter() {
+            const count = foundClues.size;
+            counterEl.textContent = `${count} / ${totalClues}`;
+            
+            // Animación de pulso al encontrar una
+            counterEl.classList.add('animate-bounce');
+            setTimeout(() => {
+                counterEl.classList.remove('animate-bounce');
+            }, 1000);
+
+            // Revisar si ganó
+            if (count === totalClues) {
+                setTimeout(() => {
+                    successModal.classList.remove('hidden');
+                }, 800); // Pequeño retraso después de cerrar el último modal
+            }
+        }
+
+        // Mostrar Modal
+        function showModal(id) {
+            const data = cluesData[id];
+            if(data) {
+                simpleExplanationEl.innerHTML = data.simple;
+                techExplanationEl.innerHTML = data.tech;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // Cerrar Modal
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Cerrar modal si se hace clic fuera del contenido
+        modal.addEventListener('click', function(e) {
+            if (e.target === this.querySelector('.modal-overlay')) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
