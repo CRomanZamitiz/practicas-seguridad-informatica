@@ -3,95 +3,1174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller Prácticas de Seguridad Informática</title>
+    <title>Taller Prácticas sobre Seguridad Informática | UNAM PAC236</title>
+    <meta name="description" content="Portal de material didáctico interactivo e infografías de apoyo del Taller Prácticas sobre Seguridad Informática (UNAM, Clave PAC236).">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 950px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
-        header { background-color: #002b5e; color: white; padding: 2rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; }
-        h1 { margin: 0; font-size: 2.2rem; }
-        .subtitle { font-size: 1.2rem; margin-bottom: 1rem; }
-        h2 { color: #002b5e; border-bottom: 2px solid #002b5e; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.5rem; }
-        .course-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin-bottom: 0.8rem; padding-left: 1.8rem; position: relative; border-bottom: 1px solid #eee; padding-bottom: 0.8rem; }
-        li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        li::before { content: '📄'; position: absolute; left: 0; top: 0; }
-        .icon-folder::before { content: '📁'; }
-        .icon-book::before { content: '📘'; }
-        .icon-img::before { content: '🖼️'; }
-        .icon-link::before { content: '🔗'; }
-        a { color: #0056b3; text-decoration: none; font-weight: 500; }
-        a:hover { text-decoration: underline; }
-        .tag { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; color: white; font-weight: bold; }
-        .tag-pdf { background: #dc3545; }
-        .tag-link { background: #17a2b8; }
-        .profile-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background: rgba(255,255,255,0.1); border-radius: 50px; font-size: 0.95rem; }
-        .profile-link a { color: #e0f2fe; text-decoration: none; font-weight: 600; }
-        .profile-link a:hover { color: #ffffff; text-decoration: underline; }
+        /* =====================================================================
+           VARIABLES DE DISEÑO (PALETA INSTITUCIONAL UNAM)
+           ===================================================================== */
+        :root {
+            --unam-navy: #002B5C;
+            --unam-navy-deep: #0B2545;
+            --unam-blue-soft: #143D6D;
+            --unam-gold: #C59B27;
+            --unam-gold-bright: #D4AF37;
+            --unam-gold-bg: #FCF8EB;
+            --unam-gold-border: #EAD9A1;
+
+            --bg-page: #F4F7FA;
+            --bg-card: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #475569;
+            --text-light: #64748B;
+            --border-subtle: #E2E8F0;
+            --border-hover: #CBD5E1;
+
+            /* Colores semánticos por tipo de recurso */
+            --badge-practica-bg: #E8F0FA;
+            --badge-practica-text: #002B5C;
+            --badge-practica-border: #BDD3F0;
+
+            --badge-infoint-bg: #FCF6E3;
+            --badge-infoint-text: #856404;
+            --badge-infoint-border: #E8D28C;
+
+            --badge-info-bg: #ECFDF5;
+            --badge-info-text: #065F46;
+            --badge-info-border: #A7F3D0;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 18px;
+            --shadow-sm: 0 2px 6px rgba(11, 37, 69, 0.05);
+            --shadow-md: 0 10px 24px rgba(11, 37, 69, 0.09);
+            --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* =====================================================================
+           RESET Y TIPOGRAFÍA BASE
+           ===================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* =====================================================================
+           ENCABEZADO INSTITUCIONAL (HERO)
+           ===================================================================== */
+        .hero {
+            background: linear-gradient(135deg, var(--unam-navy-deep) 0%, var(--unam-navy) 60%, var(--unam-blue-soft) 100%);
+            color: #FFFFFF;
+            border-bottom: 4px solid var(--unam-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Patrón geométrico muy sutil de fondo */
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(212, 175, 55, 0.14) 1px, transparent 1px);
+            background-size: 26px 26px;
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 2.75rem 1.25rem 2.5rem;
+        }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--unam-gold-bright);
+            margin-bottom: 0.75rem;
+        }
+
+        .hero h1 {
+            margin: 0 0 0.5rem;
+            font-size: clamp(1.75rem, 3.6vw, 2.55rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtitle {
+            margin: 0 0 1.5rem;
+            font-size: clamp(1rem, 1.8vw, 1.15rem);
+            color: #D8E4F2;
+            max-width: 680px;
+            font-weight: 400;
+        }
+
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-size: 0.86rem;
+            color: #F8FAFC;
+            backdrop-filter: blur(4px);
+        }
+
+        .meta-pill strong {
+            color: var(--unam-gold-bright);
+            font-weight: 700;
+        }
+
+        .meta-pill svg {
+            width: 15px;
+            height: 15px;
+            color: var(--unam-gold-bright);
+            flex-shrink: 0;
+        }
+
+        /* =====================================================================
+           BARRA SUPERIOR DE NAVEGACIÓN RÁPIDA Y FILTROS
+           ===================================================================== */
+        .controls-bar {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 12px rgba(11, 37, 69, 0.04);
+        }
+
+        .controls-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.85rem 1.25rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .filter-btn {
+            appearance: none;
+            border: 1px solid var(--border-subtle);
+            background: #F8FAFC;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 0.5rem 0.85rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--unam-navy);
+            color: var(--unam-navy);
+            background: #EEF4FB;
+        }
+
+        .filter-btn.active {
+            background: var(--unam-navy);
+            border-color: var(--unam-navy);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 43, 92, 0.22);
+        }
+
+        .filter-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 0.35rem;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            background: rgba(15, 23, 42, 0.08);
+            color: inherit;
+        }
+
+        .filter-btn.active .filter-count {
+            background: rgba(212, 175, 55, 0.26);
+            color: #FFF7D6;
+        }
+
+        .quick-nav {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .quick-nav-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-light);
+            margin-right: 0.25rem;
+        }
+
+        .quick-link {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--unam-navy);
+            padding: 0.38rem 0.7rem;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition), opacity var(--transition);
+        }
+
+        .quick-link:hover {
+            background: #E8F0FA;
+        }
+
+        .quick-link.is-dimmed {
+            opacity: 0.38;
+            pointer-events: none;
+        }
+
+        /* =====================================================================
+           CONTENIDO PRINCIPAL Y SECCIONES DE TEMAS
+           ===================================================================== */
+        .main-content {
+            flex: 1;
+            max-width: 1140px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2.25rem 1.25rem 3.5rem;
+        }
+
+        .topic-section {
+            margin-bottom: 3rem;
+            scroll-margin-top: 96px;
+        }
+
+        .topic-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .topic-section.is-hidden {
+            display: none;
+        }
+
+        .topic-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 0.75rem 1rem;
+            padding-bottom: 0.9rem;
+            margin-bottom: 1.35rem;
+            border-bottom: 2px solid var(--border-subtle);
+            position: relative;
+        }
+
+        /* Acento dorado institucional en la línea inferior del encabezado del tema */
+        .topic-header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 72px;
+            height: 3px;
+            background: var(--unam-gold);
+            border-radius: 3px;
+        }
+
+        .topic-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .topic-number {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--unam-navy);
+            color: var(--unam-gold-bright);
+            font-weight: 800;
+            font-size: 1.05rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 3px 8px rgba(0, 43, 92, 0.18);
+        }
+
+        .topic-title {
+            margin: 0;
+            font-size: clamp(1.2rem, 2.2vw, 1.48rem);
+            font-weight: 800;
+            color: var(--unam-navy-deep);
+            line-height: 1.25;
+        }
+
+        .session-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--unam-navy);
+            background: #FFFFFF;
+            border: 1px solid var(--border-subtle);
+            padding: 0.35rem 0.78rem;
+            border-radius: 999px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .session-tag svg {
+            width: 14px;
+            height: 14px;
+            color: var(--unam-gold);
+        }
+
+        /* =====================================================================
+           CUADRÍCULA Y TARJETAS DE RECURSOS
+           ===================================================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.35rem 1.4rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+            position: relative;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-hover);
+        }
+
+        .resource-card.is-hidden {
+            display: none;
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.38rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.28rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            letter-spacing: 0.01em;
+        }
+
+        .badge svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        .badge-practica {
+            background: var(--badge-practica-bg);
+            color: var(--badge-practica-text);
+            border-color: var(--badge-practica-border);
+        }
+
+        .badge-infografia-interactiva {
+            background: var(--badge-infoint-bg);
+            color: var(--badge-infoint-text);
+            border-color: var(--badge-infoint-border);
+        }
+
+        .badge-infografia {
+            background: var(--badge-info-bg);
+            color: var(--badge-info-text);
+            border-color: var(--badge-info-border);
+        }
+
+        .card-title {
+            margin: 0 0 0.6rem;
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: var(--unam-navy-deep);
+            line-height: 1.35;
+        }
+
+        .card-desc {
+            margin: 0 0 1rem;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.58;
+            flex: 1;
+        }
+
+        /* Bloque destacado para la nota legal CADIDO / LGPDPPSO */
+        .callout-note {
+            background: var(--unam-gold-bg);
+            border: 1px solid var(--unam-gold-border);
+            border-left: 4px solid var(--unam-gold);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 0.9rem;
+            margin: -0.25rem 0 1.1rem;
+            font-size: 0.85rem;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .callout-note strong {
+            display: block;
+            color: var(--unam-navy);
+            font-size: 0.86rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            padding-top: 0.9rem;
+            border-top: 1px solid #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .card-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition), color var(--transition), transform var(--transition);
+        }
+
+        .card-action svg {
+            width: 15px;
+            height: 15px;
+            transition: transform var(--transition);
+        }
+
+        .card-action:hover svg {
+            transform: translateX(3px);
+        }
+
+        .action-primary {
+            background: var(--unam-navy);
+            color: #FFFFFF;
+        }
+
+        .action-primary:hover {
+            background: var(--unam-blue-soft);
+        }
+
+        .action-secondary {
+            background: #F1F5F9;
+            color: var(--unam-navy);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .action-secondary:hover {
+            background: #E8F0FA;
+            border-color: var(--badge-practica-border);
+        }
+
+        /* =====================================================================
+           PIE DE PÁGINA SOBRIO
+           ===================================================================== */
+        .site-footer {
+            background: var(--unam-navy-deep);
+            color: #CBD5E1;
+            border-top: 3px solid var(--unam-gold);
+            padding: 1.75rem 1.25rem;
+            font-size: 0.86rem;
+        }
+
+        .footer-inner {
+            max-width: 1140px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem 1.5rem;
+        }
+
+        .footer-brand {
+            color: #FFFFFF;
+            font-weight: 700;
+            margin: 0 0 0.2rem;
+        }
+
+        .footer-meta {
+            margin: 0;
+            color: #94A3B8;
+            font-size: 0.82rem;
+        }
+
+        .footer-right {
+            color: #CBD5E1;
+            font-size: 0.83rem;
+        }
+
+        .footer-right strong {
+            color: var(--unam-gold-bright);
+        }
+
+        /* =====================================================================
+           RESPONSIVIDAD MÓVIL
+           ===================================================================== */
+        @media (max-width: 720px) {
+            .hero-inner {
+                padding: 2rem 1rem 1.85rem;
+            }
+
+            .controls-bar {
+                position: static;
+            }
+
+            .controls-inner {
+                padding: 0.85rem 1rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .main-content {
+                padding: 1.6rem 1rem 2.75rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topic-section {
+                scroll-margin-top: 20px;
+            }
+
+            .card-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Taller Prácticas de Seguridad Informática</h1>
-        <div class="subtitle">Contenido</div>
-        <!-- div class="profile-link">
-            👨‍🏫 <a href="https://sites.google.com/ingenieria.unam.edu/carlos-alberto-roman-zamitiz/" target="_blank">Perfil Profesional del Mtro. Carlos Alberto Román Zamitiz</a>
-        </div -->
+
+    <!-- =====================================================================
+         ENCABEZADO INSTITUCIONAL
+         ===================================================================== -->
+    <header class="hero">
+        <div class="hero-inner">
+            <div class="hero-kicker">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <span>Universidad Nacional Autónoma de México · Capacitación</span>
+            </div>
+            <h1>Taller Prácticas sobre Seguridad Informática</h1>
+            <p class="hero-subtitle">Material didáctico interactivo e infografías de apoyo</p>
+
+            <div class="hero-pills" aria-label="Información general del curso">
+                <span class="meta-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="16" rx="2"/>
+                        <line x1="7" y1="8" x2="17" y2="8"/>
+                        <line x1="7" y1="12" x2="13" y2="12"/>
+                    </svg>
+                    <span>Clave: <strong>PAC236</strong></span>
+                </span>
+                <span class="meta-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span>Instructor: <strong>Mtro. Carlos Alberto Román Zamitiz</strong></span>
+                </span>
+                <span class="meta-pill">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span><strong>23–27 de noviembre de 2026</strong></span>
+                </span>
+            </div>
+        </div>
     </header>
 
-    <div class="course-card">
-        <h2>📌 Tema 1: "Manejo de Datos Personales"</h2>
-        <!-- h2>📌 Páginas interactivas</h2 -->
-        <ul>
-            <li class="icon-link"><a href="./clasificador_datos_personales_UNAM.html" target="_blank">Clasificación y Protección de Datos Personales en la UNAM</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 1 "Manejo de Datos Personales". En esta práctica se clasifican algunos ejemplos de Datos Personales y las Medidas de Seguridad Técnicas (MST) para protegerlos.</span></li>
-            <br>
-            <li class="icon-img"><a href="./Retencion_de_Datos_Personales_en_Mexico.png" target="_blank">Infografía: Retención de Datos Personales en México</a><br>
-            <span class="description">De acuerdo con la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados (LGPDPPSO) (Artículo 3, Fracción IV), el bloqueo es la identificación y conservación de 
-                los datos personales una vez cumplida la finalidad para la cual fueron recabados, con el único propósito de determinar posibles responsabilidades (legales, fiscales o administrativas).
-                <b><u>¿Por cuánto tiempo deben conservarse?</u></b> No existe un número único. El plazo exacto está dictado por el Catálogo de Disposición Documental (CADIDO) de la institución. Por ejemplo, el CADIDO de la UNAM, 
-                el cual se alinea con la Ley General de Archivos.</span></li>
-            <br>
-            <li class="icon-img"><a href="./Fuga_de_datos_personales_en_la_UNAM.jpg" target="_blank">Infografía: Fuga de datos personales en la UNAM</a><br>
-            <span class="description">Esta infografía muestra cómo escala una sanción por fuga de datos personales y en qué consiste la multa.</span></li>
-            <br>
-            <li class="icon-img"><a href="./Medidas_de_Seguridad_de_la_Informacion.png" target="_blank">Infografía: Medidas de Seguridad de la Información</a><br>
-            <span class="description">Esta infografía muestra los tipos de medidas de seguridad de la información.</span></li>
-        </ul>
-    </div>
-    <div class="course-card">
-        <h2>📌 Tema 2: "Conceptos de Seguridad Informática"</h2>
-        <ul>
-            <li class="icon-link"><a href="./explorador_de_conceptos_de_seguridad.html" target="_blank">Explorador de Conceptos de Seguridad Informática</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 2 "Conceptos de Seguridad Informática". En esta práctica se exploran conceptos de Seguridad Informática.</span></li>
-            <br>
-            <li class="icon-img"><a href="./ataques_sistemas_informaticos.png" target="_blank">Infografía: Los 4 tipos de ataques a los sistemas informáticos</a><br>
-            <span class="description">Esta infografía muestra los 4 tipos de ataques a los sistemas informáticos.</span></li>
-            <br>
-        </ul>
-    </div>
-    <div class="course-card">
-        <h2>📌 Tema 3: "Riesgo, Impacto y Respuesta a Incidentes"</h2>
-        <ul>
-            <li class="icon-link"><a href="./infografia_ciberataques.html" target="_blank">Infografía: 4 Ciberataques clave</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 3 "Riesgo, Impacto y Respuesta a Incidentes". En esta infografía se exploran cuatro ciberataques, de entre los más reconocidos a nivel mundial.</span></li>
-            <br>
-            <li class="icon-link"><a href="./simulador_cid.html" target="_blank">Simulador de la Tríada CID/CIA</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 3 "Riesgo, Impacto y Respuesta a Incidentes". En esta práctica se muestran los 4 ciberataques de la infografía anterior y cómo impactan a la Tríada CID/CIA.</span></li>
-        </ul>
-    </div>
-    <div class="course-card">
-        <h2>📌 Tema 4: "Buenas prácticas en la Seguridad Informática"</h2>
-        <ul>
-            <li class="icon-link"><a href="./detective_de_phishing.html" target="_blank">Detective de Phishing</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">El reto de esta práctica consiste en descubrir 5 "banderas rojas" ocultas en un mensaje de correo señuelo.</span></li>
-            <br>
-            <li class="icon-link"><a href="./infografia_zxcvbn.html" target="_blank">¿Qué es el motor zxcvbn?</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 4 "Buenas prácticas en la Seguridad Informática". Esta infografía interactiva explica el motor zxcvbn.</span></li>
-            <br>
-            <li class="icon-link"><a href="./laboratorio_de_contrasenas_con_motor_zxcvbn.html" target="_blank">Laboratorio de Contraseñas con motor zxcvbn</a> <span class="tag tag-link">Link</span><br>
-            <span class="description">Tema 4 "Buenas prácticas en la Seguridad Informática". Este laboratorio con motor zxcvbn evalúa las contraseñas ingresadas.</span></li>
-        </ul>
-    </div>
+    <!-- =====================================================================
+         BARRA DE FILTROS INTERACTIVOS Y NAVEGACIÓN RÁPIDA
+         ===================================================================== -->
+    <nav class="controls-bar" aria-label="Filtros de recursos y navegación por temas">
+        <div class="controls-inner">
+            <!-- Filtros por tipo de recurso -->
+            <div class="filter-group" role="group" aria-label="Filtrar por tipo de recurso">
+                <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">
+                    <span>Todos</span>
+                    <span class="filter-count" id="count-all">11</span>
+                </button>
+                <button type="button" class="filter-btn" data-filter="practica" aria-pressed="false">
+                    <span>Prácticas interactivas</span>
+                    <span class="filter-count" id="count-practica">0</span>
+                </button>
+                <button type="button" class="filter-btn" data-filter="infografia-interactiva" aria-pressed="false">
+                    <span>Infografías interactivas</span>
+                    <span class="filter-count" id="count-infografia-interactiva">0</span>
+                </button>
+                <button type="button" class="filter-btn" data-filter="infografia" aria-pressed="false">
+                    <span>Infografías</span>
+                    <span class="filter-count" id="count-infografia">0</span>
+                </button>
+            </div>
 
+            <!-- Anclas rápidas a cada tema -->
+            <div class="quick-nav" aria-label="Ir directamente a un tema">
+                <span class="quick-nav-label">Ir a:</span>
+                <a class="quick-link" href="#tema-1" data-nav-target="tema-1">Tema 1</a>
+                <a class="quick-link" href="#tema-2" data-nav-target="tema-2">Tema 2</a>
+                <a class="quick-link" href="#tema-3" data-nav-target="tema-3">Tema 3</a>
+                <a class="quick-link" href="#tema-4" data-nav-target="tema-4">Tema 4</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- =====================================================================
+         CONTENIDO PRINCIPAL: 4 TEMAS DEL TALLER
+         ===================================================================== -->
+    <main class="main-content">
+
+        <!-- =================================================================
+             TEMA 1: MANEJO DE DATOS PERSONALES
+             ================================================================= -->
+        <section id="tema-1" class="topic-section" aria-labelledby="titulo-tema-1">
+            <div class="topic-header">
+                <div class="topic-title-wrap">
+                    <span class="topic-number" aria-hidden="true">1</span>
+                    <h2 id="titulo-tema-1" class="topic-title">Tema 1: Manejo de Datos Personales</h2>
+                </div>
+                <span class="session-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Sesión 1 · Lunes 23 nov
+                </span>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Tarjeta 1.1 -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <span class="badge badge-practica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Práctica interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">Clasificación y Protección de Datos Personales en la UNAM</h3>
+                    <p class="card-desc">
+                        Clasifica ejemplos reales de Datos Personales (generales y sensibles) e identifica las Medidas de Seguridad Técnicas (MST) para protegerlos.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./clasificador_datos_personales_UNAM.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 1.2 -->
+                <article class="resource-card" data-type="infografia">
+                    <div class="card-top">
+                        <span class="badge badge-infografia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Infografía
+                        </span>
+                    </div>
+                    <h3 class="card-title">Retención de Datos Personales en México</h3>
+                    <p class="card-desc">
+                        De acuerdo con la LGPDPPSO (Art. 3, Fracc. IV), el bloqueo es la identificación y conservación de los datos personales una vez cumplida su finalidad para determinar posibles responsabilidades (legales, fiscales o administrativas).
+                    </p>
+                    <div class="callout-note">
+                        <strong>¿Por cuánto tiempo deben conservarse?</strong>
+                        El plazo exacto está dictado por el Catálogo de Disposición Documental (CADIDO) de la institución, como el CADIDO de la UNAM alineado a la Ley General de Archivos.
+                    </div>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./Retencion_de_Datos_Personales_en_Mexico.png" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 1.3 -->
+                <article class="resource-card" data-type="infografia">
+                    <div class="card-top">
+                        <span class="badge badge-infografia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Infografía
+                        </span>
+                    </div>
+                    <h3 class="card-title">Fuga de datos personales en la UNAM</h3>
+                    <p class="card-desc">
+                        Muestra cómo escala una sanción por fuga de datos personales y en qué consiste la multa aplicable.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./Fuga_de_datos_personales_en_la_UNAM.jpg" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 1.4 -->
+                <article class="resource-card" data-type="infografia">
+                    <div class="card-top">
+                        <span class="badge badge-infografia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Infografía
+                        </span>
+                    </div>
+                    <h3 class="card-title">Medidas de Seguridad de la Información</h3>
+                    <p class="card-desc">
+                        Presenta los tres tipos fundamentales de controles o salvaguardas: medidas administrativas, técnicas y físicas.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./Medidas_de_Seguridad_de_la_Informacion.png" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             TEMA 2: CONCEPTOS DE SEGURIDAD INFORMÁTICA
+             ================================================================= -->
+        <section id="tema-2" class="topic-section" aria-labelledby="titulo-tema-2">
+            <div class="topic-header">
+                <div class="topic-title-wrap">
+                    <span class="topic-number" aria-hidden="true">2</span>
+                    <h2 id="titulo-tema-2" class="topic-title">Tema 2: Conceptos de Seguridad Informática</h2>
+                </div>
+                <span class="session-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Sesión 2 · Martes 24 nov
+                </span>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Tarjeta 2.1 -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <span class="badge badge-practica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Práctica interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">Explorador de Conceptos de Seguridad Informática</h3>
+                    <p class="card-desc">
+                        Explora los conceptos clave de Seguridad Informática (activos, amenazas, vulnerabilidades y ataques) con perspectiva administrativa y técnica.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./explorador_de_conceptos_de_seguridad.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 2.2 -->
+                <article class="resource-card" data-type="infografia">
+                    <div class="card-top">
+                        <span class="badge badge-infografia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            Infografía
+                        </span>
+                    </div>
+                    <h3 class="card-title">Los 4 tipos de ataques a los sistemas informáticos</h3>
+                    <p class="card-desc">
+                        Ilustra las cuatro categorías clásicas de ataques a los sistemas informáticos.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./ataques_sistemas_informaticos.png" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             TEMA 3: RIESGO, IMPACTO Y RESPUESTA A INCIDENTES
+             ================================================================= -->
+        <section id="tema-3" class="topic-section" aria-labelledby="titulo-tema-3">
+            <div class="topic-header">
+                <div class="topic-title-wrap">
+                    <span class="topic-number" aria-hidden="true">3</span>
+                    <h2 id="titulo-tema-3" class="topic-title">Tema 3: Riesgo, Impacto y Respuesta a Incidentes</h2>
+                </div>
+                <span class="session-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Sesión 3 · Miércoles 25 nov
+                </span>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Tarjeta 3.1 -->
+                <article class="resource-card" data-type="infografia-interactiva">
+                    <div class="card-top">
+                        <span class="badge badge-infografia-interactiva">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                            </svg>
+                            Infografía interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">4 Ciberataques clave</h3>
+                    <p class="card-desc">
+                        Explora cuatro ciberataques reconocidos a nivel mundial (Sniffer, Ransomware, DDoS e Inyección de Código) como paso previo al simulador.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./infografia_ciberataques.html" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 3.2 -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <span class="badge badge-practica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Práctica interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">Simulador de la Tríada CID/CIA</h3>
+                    <p class="card-desc">
+                        Analiza de forma interactiva cómo los 4 ciberataques de la infografía anterior comprometen la Confidencialidad, Integridad y Disponibilidad.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./simulador_cid.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             TEMA 4: BUENAS PRÁCTICAS EN LA SEGURIDAD INFORMÁTICA
+             ================================================================= -->
+        <section id="tema-4" class="topic-section" aria-labelledby="titulo-tema-4">
+            <div class="topic-header">
+                <div class="topic-title-wrap">
+                    <span class="topic-number" aria-hidden="true">4</span>
+                    <h2 id="titulo-tema-4" class="topic-title">Tema 4: Buenas prácticas en la Seguridad Informática</h2>
+                </div>
+                <span class="session-tag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    Sesiones 4 y 5 · Jueves 26 y Viernes 27 nov
+                </span>
+            </div>
+
+            <div class="cards-grid">
+                <!-- Tarjeta 4.1 -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <span class="badge badge-practica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Práctica interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">Detective de Phishing</h3>
+                    <p class="card-desc">
+                        El reto consiste en descubrir 5 'banderas rojas' ocultas en un mensaje de correo electrónico señuelo.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./detective_de_phishing.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 4.2 -->
+                <article class="resource-card" data-type="infografia-interactiva">
+                    <div class="card-top">
+                        <span class="badge badge-infografia-interactiva">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                            </svg>
+                            Infografía interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">¿Qué es el motor zxcvbn?</h3>
+                    <p class="card-desc">
+                        Infografía interactiva que explica cómo funciona el estimador realista de fortaleza de contraseñas zxcvbn frente a los validadores tradicionales.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-secondary" href="./infografia_zxcvbn.html" target="_blank" rel="noopener noreferrer">
+                            <span>Ver infografía</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 4.3 -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <span class="badge badge-practica">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Práctica interactiva
+                        </span>
+                    </div>
+                    <h3 class="card-title">Laboratorio de Contraseñas con motor zxcvbn</h3>
+                    <p class="card-desc">
+                        Evalúa en tiempo real la robustez de contraseñas y frases de contraseña, tiempos estimados de descifrado y políticas de servidor.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./laboratorio_de_contrasenas_con_motor_zxcvbn.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =====================================================================
+         PIE DE PÁGINA SOBRIO
+         ===================================================================== -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div>
+                <p class="footer-brand">Taller Prácticas sobre Seguridad Informática · Clave PAC236</p>
+                <p class="footer-meta">Universidad Nacional Autónoma de México · 23 al 27 de noviembre de 2026</p>
+            </div>
+            <div class="footer-right">
+                Instructor: <strong>Mtro. Carlos Alberto Román Zamitiz</strong>
+            </div>
+        </div>
+    </footer>
+
+    <!-- =====================================================================
+         LÓGICA INTERACTIVA DE FILTROS Y CONTADORES DINÁMICOS
+         ===================================================================== -->
+    <script>
+        (function () {
+            const cards = Array.from(document.querySelectorAll('.resource-card'));
+            const sections = Array.from(document.querySelectorAll('.topic-section'));
+            const filterButtons = Array.from(document.querySelectorAll('.filter-btn'));
+            const quickLinks = Array.from(document.querySelectorAll('.quick-link'));
+
+            /**
+             * Calcula y actualiza los contadores dinámicos de cada filtro
+             * con base en las tarjetas presentes en el DOM.
+             */
+            function updateFilterCounts() {
+                const counts = {
+                    all: cards.length,
+                    practica: 0,
+                    'infografia-interactiva': 0,
+                    infografia: 0
+                };
+
+                cards.forEach(card => {
+                    const type = card.getAttribute('data-type');
+                    if (Object.prototype.hasOwnProperty.call(counts, type)) {
+                        counts[type] += 1;
+                    }
+                });
+
+                Object.entries(counts).forEach(([key, value]) => {
+                    const el = document.getElementById(`count-${key}`);
+                    if (el) {
+                        el.textContent = value;
+                    }
+                });
+            }
+
+            /**
+             * Aplica el filtro seleccionado, oculta las tarjetas que no coinciden,
+             * oculta las secciones que queden vacías y atenúa sus anclas rápidas.
+             */
+            function applyFilter(selectedType) {
+                // Actualizar estado visual y accesible de los botones de filtro
+                filterButtons.forEach(btn => {
+                    const isActive = btn.getAttribute('data-filter') === selectedType;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
+                });
+
+                // Mostrar u ocultar tarjetas según el filtro
+                cards.forEach(card => {
+                    const cardType = card.getAttribute('data-type');
+                    const shouldShow = selectedType === 'all' || cardType === selectedType;
+                    card.classList.toggle('is-hidden', !shouldShow);
+                });
+
+                // Ocultar temas sin tarjetas visibles y actualizar enlaces de navegación rápida
+                sections.forEach(section => {
+                    const visibleCards = section.querySelectorAll('.resource-card:not(.is-hidden)');
+                    const isEmpty = visibleCards.length === 0;
+                    section.classList.toggle('is-hidden', isEmpty);
+
+                    const navLink = quickLinks.find(link => link.getAttribute('data-nav-target') === section.id);
+                    if (navLink) {
+                        navLink.classList.toggle('is-dimmed', isEmpty);
+                    }
+                });
+            }
+
+            // Enlazar eventos de clic en botones de filtro
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filterValue = btn.getAttribute('data-filter');
+                    applyFilter(filterValue);
+                });
+            });
+
+            // Inicializar contadores al cargar
+            updateFilterCounts();
+        })();
+    </script>
 </body>
 </html>
