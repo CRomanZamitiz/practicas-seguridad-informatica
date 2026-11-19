@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Contraseñas con Motor zxcvbn | Sesión 5</title>
+    <!-- Tailwind CSS vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter y Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Librería zxcvbn vía CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Banner de Privacidad y Estado del Motor -->
+    <div class="bg-slate-900 text-slate-200 border-b border-slate-700 px-4 py-2.5 text-xs sm:text-sm">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-center sm:text-left">
+                <i class="fa-solid fa-lock text-emerald-400 shrink-0"></i>
+                <span>
+                    <strong class="text-white">Procesamiento 100% local en tu navegador</strong> (igual que Bitwarden). Por buena práctica, no escribas contraseñas reales o institucionales; usa ejemplos inventados.
+                </span>
+            </div>
+            <!-- Indicador discreto de estado del motor -->
+            <div id="engineStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                <span id="engineStatusDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span id="engineStatusText">Verificando motor...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Encabezado Principal -->
+    <header class="bg-gradient-to-r from-indigo-900 via-blue-900 to-slate-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/10 border border-white/20 p-3.5 rounded-2xl shadow-inner backdrop-blur-sm">
+                    <i class="fa-solid fa-key text-2xl sm:text-3xl text-cyan-300"></i>
+                </div>
+                <div>
+                    <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-300 mb-1">
+                        <span>Sesión 5: Gestión de Contraseñas</span>
+                        <span>•</span>
+                        <span>Taller Prácticas sobre Seguridad Informática</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                        Laboratorio de Contraseñas con Motor <span class="text-cyan-300 font-mono">zxcvbn</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="hidden lg:flex items-center gap-2 text-xs bg-white/10 px-4 py-2 rounded-xl border border-white/15">
+                <i class="fa-solid fa-users text-cyan-300"></i>
+                <span>Enfoque Dual: <strong>Administrativo</strong> + <strong>TI (Zimbra/Carbonio)</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+        <!-- ZONA INTERACTIVA PRINCIPAL -->
+        <section class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-7 space-y-6">
+            
+            <!-- Campo de Contraseña -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="passwordInput" class="block text-sm font-bold text-slate-700">
+                        Escribe una contraseña de prueba o selecciona un ejemplo:
+                    </label>
+                    <span id="charCount" class="text-xs font-mono font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                        0 caracteres
+                    </span>
+                </div>
+
+                <div class="relative flex items-center">
+                    <div class="absolute left-4 text-slate-400 pointer-events-none">
+                        <i class="fa-solid fa-shield-halved text-lg"></i>
+                    </div>
+                    <input
+                        type="password"
+                        id="passwordInput"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="Ej. TacosDeCanasta!Azul#74"
+                        class="w-full pl-12 pr-24 py-4 text-lg sm:text-xl font-mono bg-slate-50 border-2 border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all placeholder-slate-400"
+                    >
+                    <div class="absolute right-3 flex items-center gap-1">
+                        <button
+                            id="clearBtn"
+                            type="button"
+                            title="Limpiar campo"
+                            class="hidden p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            aria-label="Limpiar contraseña"
+                        >
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                        <button
+                            id="toggleVisibilityBtn"
+                            type="button"
+                            title="Mostrar u ocultar contraseña"
+                            class="p-2.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                            aria-label="Mostrar u ocultar contraseña"
+                        >
+                            <i id="eyeIcon" class="fa-solid fa-eye text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Ejemplos Rápidos para Demostración en Vivo -->
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-amber-500"></i>
+                    Ejemplos rápidos para demostración en vivo:
+                </p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="loadExample('admin123')" class="demo-btn text-left px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-rose-50 hover:border-rose-300 transition-all text-xs sm:text-sm group">
+                        <span class="font-mono font-bold text-slate-800 group-hover:text-rose-700 block">admin123</span>
+                        <span class="text-[11px] text-slate-500">Diccionario común</span>
+                    </button>
+                    <button type="button" onclick="loadExample('P@ssw0rd2026!')" class="demo-btn text-left px-3 py-2 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100 hover:border-amber-400 transition-all text-xs sm:text-sm group">
+                        <span class="font-mono font-bold text-slate-800 group-hover:text-amber-800 block">P@ssw0rd2026!</span>
+                        <span class="text-[11px] text-amber-700 font-medium">Engaña a Regex, NO a zxcvbn</span>
+                    </button>
+                    <button type="button" onclick="loadExample('qwerty12345')" class="demo-btn text-left px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 hover:border-orange-300 transition-all text-xs sm:text-sm group">
+                        <span class="font-mono font-bold text-slate-800 group-hover:text-orange-700 block">qwerty12345</span>
+                        <span class="text-[11px] text-slate-500">Secuencia de teclado</span>
+                    </button>
+                    <button type="button" onclick="loadExample('TacosDeCanasta!Azul#74')" class="demo-btn text-left px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 hover:border-emerald-400 transition-all text-xs sm:text-sm group">
+                        <span class="font-mono font-bold text-slate-800 group-hover:text-emerald-800 block">TacosDeCanasta!Azul#74</span>
+                        <span class="text-[11px] text-emerald-700 font-medium">Passphrase fuerte</span>
+                    </button>
+                    <button type="button" onclick="loadExample('k9#mP2$vL8@qR5!x')" class="demo-btn text-left px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-xs sm:text-sm group">
+                        <span class="font-mono font-bold text-slate-800 group-hover:text-indigo-700 block">k9#mP2$vL8@qR5!x</span>
+                        <span class="text-[11px] text-slate-500">Aleatoria robusta</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra Segmentada de 5 Niveles + Tarjeta de Tiempo Estimado de Descifrado -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-2 border-t border-slate-100">
+                
+                <!-- Barra Segmentada (Score 0 a 4) -->
+                <div class="lg:col-span-6 flex flex-col justify-center bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Fortaleza estimada (zxcvbn)</span>
+                        <span id="strengthBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600">
+                            Sin evaluar
+                        </span>
+                    </div>
+                    <!-- 5 Segmentos -->
+                    <div class="grid grid-cols-5 gap-2 h-3.5 mb-3">
+                        <div id="seg-0" class="rounded-full bg-slate-200 transition-all duration-300"></div>
+                        <div id="seg-1" class="rounded-full bg-slate-200 transition-all duration-300"></div>
+                        <div id="seg-2" class="rounded-full bg-slate-200 transition-all duration-300"></div>
+                        <div id="seg-3" class="rounded-full bg-slate-200 transition-all duration-300"></div>
+                        <div id="seg-4" class="rounded-full bg-slate-200 transition-all duration-300"></div>
+                    </div>
+                    <div class="flex justify-between text-[11px] text-slate-400 font-medium px-0.5">
+                        <span>Muy Débil</span>
+                        <span>Débil</span>
+                        <span>Regular</span>
+                        <span>Fuerte</span>
+                        <span>Muy Fuerte</span>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Destacada: Tiempo Estimado de Descifrado -->
+                <div class="lg:col-span-6 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-5 shadow-inner flex flex-col justify-between">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+                                <i class="fa-regular fa-clock"></i>
+                                Tiempo estimado de descifrado
+                            </p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Ataque offline con hash lento (10⁴ intentos/seg)</p>
+                        </div>
+                        <span class="text-[10px] font-mono bg-white/10 text-cyan-200 px-2 py-1 rounded-lg border border-white/10">
+                            Escenario principal
+                        </span>
+                    </div>
+
+                    <div id="crackTimePrimary" class="text-2xl sm:text-3xl font-extrabold text-white my-2 tracking-tight">
+                        —
+                    </div>
+
+                    <div class="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                        <span class="text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-microchip text-amber-400"></i>
+                            Comparativa ataque rápido con GPU (10¹⁰/seg):
+                        </span>
+                        <span id="crackTimeGpu" class="font-mono font-bold text-amber-300">
+                            —
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PANELES DE RETROALIMENTACIÓN DUAL (2 COLUMNAS EN ESCRITORIO) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+            <!-- COLUMNA IZQUIERDA: PERSPECTIVA ADMINISTRATIVA (GUÍA PRÁCTICA) -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col h-full">
+                <div class="bg-teal-700 text-white px-6 py-4 flex items-center gap-3">
+                    <div class="bg-white/15 p-2.5 rounded-xl">
+                        <i class="fa-solid fa-user-tie text-xl text-teal-100"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold">Perspectiva Administrativa</h2>
+                        <p class="text-xs text-teal-100">Guía práctica en lenguaje claro para el día a día</p>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5 flex-grow">
+                    <!-- Explicación general en lenguaje cotidiano -->
+                    <div id="adminSummaryBox" class="bg-teal-50 border-l-4 border-teal-500 p-4 rounded-r-xl text-sm text-slate-700 leading-relaxed">
+                        <p class="font-semibold text-teal-900 mb-1">¿Qué significa esta calificación?</p>
+                        <p id="adminSummaryText">
+                            Escribe una contraseña arriba o haz clic en cualquiera de los ejemplos para analizar qué tan fácil o difícil sería para un atacante adivinarla.
+                        </p>
+                    </div>
+
+                    <!-- Alertas y Sugerencias de zxcvbn en Español -->
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                            Hallazgos y recomendaciones personalizadas
+                        </h3>
+                        <div id="adminAlertsContainer" class="space-y-2.5 text-sm">
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 italic">
+                                Esperando una contraseña para generar recomendaciones...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de verificación visual de 4 buenas prácticas -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                            Lista de verificación de buenas prácticas
+                        </h3>
+                        <ul class="space-y-2.5 text-sm">
+                            <li id="bp-length" class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors">
+                                <i class="fa-regular fa-circle text-slate-400 mt-0.5 shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-slate-700 block">14 o más caracteres recomendados</span>
+                                    <span class="text-xs text-slate-500">La longitud pesa mucho más que agregar símbolos complicados.</span>
+                                </div>
+                            </li>
+                            <li id="bp-nodates" class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors">
+                                <i class="fa-regular fa-circle text-slate-400 mt-0.5 shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-slate-700 block">Sin fechas, años ni datos predecibles</span>
+                                    <span class="text-xs text-slate-500">Evita años (2026), nombres comunes o secuencias como 12345.</span>
+                                </div>
+                            </li>
+                            <li id="bp-noleet" class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors">
+                                <i class="fa-regular fa-circle text-slate-400 mt-0.5 shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-slate-700 block">Evitar sustituciones obvias (@ por a, 0 por o)</span>
+                                    <span class="text-xs text-slate-500">Los programas de ataque conocen perfectamente trucos como "P@ssw0rd".</span>
+                                </div>
+                            </li>
+                            <li id="bp-passphrase" class="flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors">
+                                <i class="fa-regular fa-circle text-slate-400 mt-0.5 shrink-0"></i>
+                                <div>
+                                    <span class="font-semibold text-slate-700 block">Usar frase de contraseña (Passphrase) o gestor</span>
+                                    <span class="text-xs text-slate-500">Combina 3 o 4 palabras sin relación entre sí, o apóyate en un gestor como Bitwarden.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: PERSPECTIVA TI (RADIOGRAFÍA ZXCVBN + ZIMBRA/CARBONIO) -->
+            <div class="bg-slate-900 text-slate-200 rounded-2xl shadow-md border border-slate-700 overflow-hidden flex flex-col h-full">
+                <div class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center gap-3">
+                    <div class="bg-indigo-500/20 border border-indigo-400/30 p-2.5 rounded-xl">
+                        <i class="fa-solid fa-terminal text-xl text-cyan-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Perspectiva TI</h2>
+                        <p class="text-xs text-slate-400">Radiografía <span class="font-mono text-cyan-300">zxcvbn</span> + Políticas Zimbra/Carbonio (<span class="font-mono text-cyan-300">zmprov</span>)</p>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5 flex-grow">
+
+                    <!-- Alerta especial educativa: Engaña a Regex pero NO a zxcvbn -->
+                    <div id="regexTrapAlert" class="hidden bg-amber-500/15 border border-amber-400/50 rounded-xl p-4 text-xs sm:text-sm text-amber-100">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg mt-0.5 shrink-0"></i>
+                            <div>
+                                <p class="font-bold text-amber-300 mb-1">
+                                    ¡Trampa de Regex detectada! Cumple las reglas clásicas, pero es insegura
+                                </p>
+                                <p class="text-amber-100/90 leading-relaxed">
+                                    Esta contraseña <strong>aprueba todas las políticas tradicionales</strong> de complejidad (longitud, mayúsculas, minúsculas, números y símbolos), pero <span class="font-mono">zxcvbn</span> le asigna una puntuación baja porque detecta patrones humanos predecibles (diccionario, <em>leetspeak</em> o fechas). Por eso las guías modernas (NIST SP 800-63B) recomiendan <strong>validar contra diccionarios filtrados</strong> y fomentar <strong>passphrases largas</strong> en lugar de reglas rígidas de complejidad.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Métricas del Motor -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                            <p class="text-[11px] text-slate-400 uppercase font-semibold">Score</p>
+                            <p id="tiScore" class="text-xl font-mono font-bold text-white mt-0.5">— / 4</p>
+                        </div>
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                            <p class="text-[11px] text-slate-400 uppercase font-semibold">log₁₀(intentos)</p>
+                            <p id="tiLog10" class="text-xl font-mono font-bold text-cyan-300 mt-0.5">—</p>
+                        </div>
+                        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                            <p class="text-[11px] text-slate-400 uppercase font-semibold">Intentos est.</p>
+                            <p id="tiGuesses" class="text-base sm:text-lg font-mono font-bold text-emerald-300 mt-1 truncate">—</p>
+                        </div>
+                    </div>
+
+                    <!-- Patrones Detectados (result.sequence) -->
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass-chart text-cyan-400"></i>
+                            Patrones detectados (<span class="font-mono lowercase">result.sequence</span>)
+                        </h3>
+                        <div id="patternsContainer" class="flex flex-wrap gap-2 bg-slate-950/60 border border-slate-800 rounded-xl p-3 min-h-[52px] items-center">
+                            <span class="text-xs font-mono text-slate-500">Sin fragmentos analizados aún...</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Tabla: 4 Escenarios de Descifrado -->
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-stopwatch text-cyan-400"></i>
+                            Escenarios de descifrado (zxcvbn)
+                        </h3>
+                        <div class="overflow-x-auto rounded-xl border border-slate-800">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-slate-800/80 text-slate-300 uppercase text-[10px]">
+                                    <tr>
+                                        <th class="px-3 py-2">Escenario de ataque</th>
+                                        <th class="px-3 py-2">Velocidad</th>
+                                        <th class="px-3 py-2 text-right">Tiempo estimado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 bg-slate-950/50 font-mono">
+                                    <tr>
+                                        <td class="px-3 py-2 font-sans text-slate-300">Online limitado (lockout)</td>
+                                        <td class="px-3 py-2 text-slate-400">100 / hora</td>
+                                        <td id="ct-online-throttled" class="px-3 py-2 text-right text-slate-200">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-3 py-2 font-sans text-slate-300">Online sin límite</td>
+                                        <td class="px-3 py-2 text-slate-400">10 / seg</td>
+                                        <td id="ct-online-unthrottled" class="px-3 py-2 text-right text-slate-200">—</td>
+                                    </tr>
+                                    <tr class="bg-indigo-950/40">
+                                        <td class="px-3 py-2 font-sans font-semibold text-cyan-300">Offline hash lento (bcrypt/Argon2)</td>
+                                        <td class="px-3 py-2 text-cyan-200/80">10⁴ / seg</td>
+                                        <td id="ct-offline-slow" class="px-3 py-2 text-right font-bold text-cyan-300">—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-3 py-2 font-sans text-slate-300">Offline hash rápido (GPU / MD5)</td>
+                                        <td class="px-3 py-2 text-slate-400">10¹⁰ / seg</td>
+                                        <td id="ct-offline-fast" class="px-3 py-2 text-right text-amber-300">—</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Políticas de Servidor: Zimbra / Carbonio COS (zmprov) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-server text-emerald-400"></i>
+                                Políticas Zimbra / Carbonio COS (<span class="font-mono lowercase">zmprov</span>)
+                            </h3>
+                            <button
+                                id="copyZmprovBtn"
+                                type="button"
+                                onclick="copyZmprovCommands()"
+                                class="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors flex items-center gap-1.5"
+                            >
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Copiar comandos</span>
+                            </button>
+                        </div>
+
+                        <!-- Indicadores rápidos de política COS -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mb-2.5 text-[11px] font-mono">
+                            <div id="cos-len" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ Long ≥ 12</div>
+                            <div id="cos-upper" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ Mayús ≥ 1</div>
+                            <div id="cos-lower" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ Minús ≥ 1</div>
+                            <div id="cos-num" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ Núm ≥ 1</div>
+                            <div id="cos-sym" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ Símb ≥ 1</div>
+                            <div id="cos-dict" class="px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80">○ No lista negra</div>
+                        </div>
+
+                        <!-- Terminal oscura -->
+                        <pre id="zmprovTerminal" class="bg-black/80 border border-slate-700 rounded-xl p-3.5 text-xs font-mono text-emerald-300 overflow-x-auto leading-relaxed whitespace-pre-wrap"># Esperando entrada para evaluar políticas COS en Zimbra/Carbonio...</pre>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECCIÓN INFERIOR COLAPSABLE CON PESTAÑAS (ESTILO BITWARDEN): TRADICIONALES VS PASSPHRASES -->
+        <section class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+            <!-- Encabezado Colapsable -->
+            <button
+                type="button"
+                id="toggleCompareBtn"
+                onclick="toggleCompareSection()"
+                class="w-full px-6 py-4 bg-slate-50 hover:bg-slate-100 transition-colors flex items-center justify-between text-left border-b border-slate-200"
+                aria-expanded="true"
+            >
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-100 text-indigo-700 p-2.5 rounded-xl">
+                        <i class="fa-solid fa-scale-balanced text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800">
+                            Comparativa: Contraseñas Tradicionales vs. Frases de Contraseña (Passphrases)
+                        </h2>
+                        <p class="text-xs text-slate-500">
+                            Referencia visual para cerrar la demostración en vivo (haz clic en cualquier ejemplo para probarlo arriba)
+                        </p>
+                    </div>
+                </div>
+                <i id="compareChevron" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300"></i>
+            </button>
+
+            <!-- Cuerpo Colapsable -->
+            <div id="compareBody" class="p-6 space-y-5">
+                <!-- Pestañas estilo Bitwarden -->
+                <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+                    <button
+                        type="button"
+                        id="tabTraditional"
+                        onclick="switchCompareTab('traditional')"
+                        class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-indigo-700 shadow-sm"
+                    >
+                        <i class="fa-solid fa-hashtag mr-1.5"></i> Contraseñas Tradicionales
+                    </button>
+                    <button
+                        type="button"
+                        id="tabPassphrase"
+                        onclick="switchCompareTab('passphrase')"
+                        class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900"
+                    >
+                        <i class="fa-solid fa-quote-left mr-1.5"></i> Frases de Contraseña (Passphrases)
+                    </button>
+                </div>
+
+                <!-- Panel 1: Tradicionales -->
+                <div id="panelTraditional" class="space-y-4">
+                    <p class="text-sm text-slate-600">
+                        Las contraseñas cortas con símbolos obligatorios suelen ser <strong>difíciles de recordar para los humanos</strong>, lo que lleva a patrones predecibles o a anotarlas en notas adhesivas. Solo se vuelven realmente fuertes cuando son largas y completamente aleatorias (generadas por un gestor).
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-rose-200 bg-rose-50/50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">Muy Débil</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">UNAM2026!</p>
+                                <p class="text-xs text-slate-600 mt-1">Corta (9 caracteres), usa siglas institucionales y el año en curso.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-rose-200/70 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-rose-700"><i class="fa-regular fa-clock mr-1"></i>Segundos / minutos</span>
+                                <button type="button" onclick="loadExample('UNAM2026!', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+
+                        <div class="border border-amber-200 bg-amber-50/50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">Falsa Sensación</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">P@ssw0rd2026!</p>
+                                <p class="text-xs text-slate-600 mt-1">13 caracteres con todo tipo de símbolos, pero basada en diccionario + leetspeak.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-amber-200/70 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-amber-800"><i class="fa-regular fa-clock mr-1"></i>Minutos / horas</span>
+                                <button type="button" onclick="loadExample('P@ssw0rd2026!', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+
+                        <div class="border border-emerald-200 bg-emerald-50/50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Muy Fuerte (Gestor)</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">k9#mP2$vL8@qR5!x</p>
+                                <p class="text-xs text-slate-600 mt-1">16 caracteres aleatorios sin patrón. Ideal para guardar en Bitwarden/KeePass.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-emerald-200/70 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-emerald-800"><i class="fa-regular fa-clock mr-1"></i>Siglos</span>
+                                <button type="button" onclick="loadExample('k9#mP2$vL8@qR5!x', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Passphrases -->
+                <div id="panelPassphrase" class="hidden space-y-4">
+                    <p class="text-sm text-slate-600">
+                        Las <strong>frases de contraseña (passphrases)</strong> combinan 3 a 5 palabras al azar sin relación entre sí. Son <strong>fáciles de recordar y escribir</strong> para cualquier usuario administrativo, y su enorme longitud las vuelve prácticamente imposibles de romper por fuerza bruta.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="border border-amber-200 bg-amber-50/50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">Mejorable (2 palabras)</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">cafe-caliente</p>
+                                <p class="text-xs text-slate-600 mt-1">Solo 2 palabras comunes y relacionadas entre sí. Aún es vulnerable a diccionarios.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-amber-200/70 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-amber-800"><i class="fa-regular fa-clock mr-1"></i>Horas / días</span>
+                                <button type="button" onclick="loadExample('cafe-caliente', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+
+                        <div class="border border-emerald-200 bg-emerald-50/50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Muy Fuerte (Recomendada)</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">TacosDeCanasta!Azul#74</p>
+                                <p class="text-xs text-slate-600 mt-1">22 caracteres, memorable, mezcla palabras con separadores y número no predecible.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-emerald-200/70 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-emerald-800"><i class="fa-regular fa-clock mr-1"></i>Siglos</span>
+                                <button type="button" onclick="loadExample('TacosDeCanasta!Azul#74', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+
+                        <div class="border border-emerald-300 bg-emerald-50 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold uppercase text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-full">Máxima Fortaleza</span>
+                                <p class="font-mono font-bold text-slate-800 text-base mt-2">bicicleta-nube-marimba-79</p>
+                                <p class="text-xs text-slate-600 mt-1">25 caracteres con palabras inconexas separadas por guiones. Estilo generador Bitwarden.</p>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
+                                <span class="text-xs font-semibold text-emerald-900"><i class="fa-regular fa-clock mr-1"></i>Siglos</span>
+                                <button type="button" onclick="loadExample('bicicleta-nube-marimba-79', true)" class="text-xs font-bold text-indigo-600 hover:underline">Probar ↑</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500 mt-8">
+        Taller Prácticas sobre Seguridad Informática • Sesión 5: Gestión de Contraseñas • Herramienta educativa offline/online con motor <span class="font-mono">zxcvbn</span>
+    </footer>
+
+    <!-- Notificación Toast (Sin alert) -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-medium px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Comandos copiados al portapapeles</span>
+    </div>
+
+    <script>
+        /* =========================================================================
+           1. DETECCIÓN DEL MOTOR ZXCVBN Y FALLBACK SIN CONEXIÓN
+           ========================================================================= */
+        let usingZxcvbn = false;
+
+        // Lista negra básica para evaluación COS y modo respaldo
+        const BASIC_BLACKLIST = [
+            '123456', '12345678', '123456789', 'password', 'p@ssw0rd', 'admin',
+            'admin123', 'qwerty', 'qwerty12345', 'welcome', 'unam', 'unam123',
+            'contraseña', 'clave123', 'abc12345', 'letmein', 'iloveyou'
+        ];
+
+        // Palabras comunes para detección básica en modo respaldo
+        const FALLBACK_DICT = [
+            'password', 'admin', 'qwerty', 'unam', 'mexico', 'seguridad',
+            'usuario', 'correo', 'sistema', 'clave', 'taller', 'acceso', 'root'
+        ];
+
+        /**
+         * Motor de respaldo en JavaScript puro si no carga el CDN de zxcvbn.
+         * Devuelve una estructura compatible con la salida de zxcvbn.
+         */
+        function fallbackZxcvbn(password) {
+            const lower = password.toLowerCase();
+            const unleet = lower
+                .replace(/@/g, 'a').replace(/4/g, 'a')
+                .replace(/0/g, 'o').replace(/1/g, 'i')
+                .replace(/3/g, 'e').replace(/\$/g, 's').replace(/5/g, 's');
+
+            const sequence = [];
+            let charset = 0;
+            if (/[a-z]/.test(password)) charset += 26;
+            if (/[A-Z]/.test(password)) charset += 26;
+            if (/[0-9]/.test(password)) charset += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) charset += 32;
+            if (charset === 0) charset = 10;
+
+            let penaltyLog10 = 0;
+            let warning = '';
+            const suggestions = [];
+
+            // Detección de diccionario / leetspeak
+            for (const word of FALLBACK_DICT) {
+                if (unleet.includes(word)) {
+                    const isLeet = !lower.includes(word);
+                    sequence.push({
+                        token: password.substr(unleet.indexOf(word), word.length),
+                        pattern: 'dictionary',
+                        l33t: isLeet,
+                        dictionary_name: 'respaldo'
+                    });
+                    penaltyLog10 += 5;
+                    warning = isLeet
+                        ? 'Predictable substitutions like "@" instead of "a" don\'t help very much'
+                        : 'This is a very common password';
+                    break;
+                }
+            }
+
+            // Detección de teclado
+            if (/qwerty|asdf|zxcv/i.test(lower)) {
+                sequence.push({ token: 'qwerty', pattern: 'spatial' });
+                penaltyLog10 += 4;
+                if (!warning) warning = 'Short keyboard patterns are easy to guess';
+            }
+
+            // Detección de secuencias numéricas
+            if (/1234|2345|3456|4567|5678|6789/.test(lower)) {
+                sequence.push({ token: '12345', pattern: 'sequence' });
+                penaltyLog10 += 3;
+                if (!warning) warning = 'Sequences like abc or 6543 are easy to guess';
+            }
+
+            // Detección de años/fechas
+            const yearMatch = password.match(/(19|20)\d{2}/);
+            if (yearMatch) {
+                sequence.push({ token: yearMatch[0], pattern: 'date' });
+                penaltyLog10 += 2.5;
+                if (!warning) warning = 'Recent years are easy to guess';
+            }
+
+            // Detección de repeticiones
+            if (/(.)\1{2,}/.test(password)) {
+                sequence.push({ token: password.match(/(.)\1{2,}/)[0], pattern: 'repeat' });
+                penaltyLog10 += 2;
+            }
+
+            if (sequence.length === 0 && password.length > 0) {
+                sequence.push({ token: password, pattern: 'bruteforce' });
+            }
+
+            // Cálculo aproximado de intentos
+            const rawLog10 = password.length * Math.log10(charset);
+            const effectiveLog10 = Math.max(1, rawLog10 - penaltyLog10);
+            const guesses = Math.pow(10, Math.min(effectiveLog10, 25));
+
+            let score = 0;
+            if (effectiveLog10 >= 11) score = 4;
+            else if (effectiveLog10 >= 8.5) score = 3;
+            else if (effectiveLog10 >= 6) score = 2;
+            else if (effectiveLog10 >= 4) score = 1;
+            else score = 0;
+
+            if (password.length < 14) {
+                suggestions.push('Add another word or two. Uncommon words are better.');
+            }
+
+            function formatSeconds(sec) {
+                if (sec < 1) return 'less than a second';
+                if (sec < 60) return Math.round(sec) + ' seconds';
+                if (sec < 3600) return Math.round(sec / 60) + ' minutes';
+                if (sec < 86400) return Math.round(sec / 3600) + ' hours';
+                if (sec < 2592000) return Math.round(sec / 86400) + ' days';
+                if (sec < 31536000) return Math.round(sec / 2592000) + ' months';
+                if (sec < 31536000 * 100) return Math.round(sec / 31536000) + ' years';
+                return 'centuries';
+            }
+
+            return {
+                score,
+                guesses,
+                guesses_log10: effectiveLog10,
+                sequence,
+                feedback: { warning, suggestions },
+                crack_times_display: {
+                    online_throttling_100_per_hour: formatSeconds(guesses / (100 / 3600)),
+                    online_no_throttling_10_per_second: formatSeconds(guesses / 10),
+                    offline_slow_hashing_1e4_per_second: formatSeconds(guesses / 1e4),
+                    offline_fast_hashing_1e10_per_second: formatSeconds(guesses / 1e10)
+                }
+            };
+        }
+
+        function evaluatePasswordEngine(password) {
+            if (usingZxcvbn) {
+                return window.zxcvbn(password);
+            }
+            return fallbackZxcvbn(password);
+        }
+
+        /* =========================================================================
+           2. TRADUCCIONES AL ESPAÑOL (TIEMPOS, ALERTAS Y SUGERENCIAS DE ZXCVBN)
+           ========================================================================= */
+
+        function translateCrackTime(enStr) {
+            if (!enStr) return '—';
+            const s = enStr.toLowerCase().trim();
+            if (s === 'less than a second') return 'menos de un segundo';
+            if (s === 'centuries') return 'siglos';
+
+            return s
+                .replace(/\b1 second\b/g, '1 segundo')
+                .replace(/\bseconds\b/g, 'segundos')
+                .replace(/\b1 minute\b/g, '1 minuto')
+                .replace(/\bminutes\b/g, 'minutos')
+                .replace(/\b1 hour\b/g, '1 hora')
+                .replace(/\bhours\b/g, 'horas')
+                .replace(/\b1 day\b/g, '1 día')
+                .replace(/\bdays\b/g, 'días')
+                .replace(/\b1 month\b/g, '1 mes')
+                .replace(/\bmonths\b/g, 'meses')
+                .replace(/\b1 year\b/g, '1 año')
+                .replace(/\byears\b/g, 'años');
+        }
+
+        const WARNING_MAP = {
+            'Straight rows of keys are easy to guess': 'Las filas rectas del teclado (como "qwerty" o "asdf") son muy fáciles de adivinar.',
+            'Short keyboard patterns are easy to guess': 'Los patrones cortos de teclado son fáciles de adivinar.',
+            'Repeats like "aaa" are easy to guess': 'Las repeticiones de caracteres (como "aaa") son fáciles de adivinar.',
+            'Repeats like "abcabcabc" are only slightly harder to guess than "abc"': 'Repetir el mismo bloque de texto apenas aumenta la seguridad.',
+            'Sequences like abc or 6543 are easy to guess': 'Las secuencias como "abc" o "12345" son muy fáciles de adivinar.',
+            'Recent years are easy to guess': 'Los años recientes (como 2025 o 2026) son de los primeros que prueban los atacantes.',
+            'Dates are often easy to guess': 'Las fechas suelen ser fáciles de adivinar.',
+            'This is a top-10 common password': '¡Alerta! Esta es una de las 10 contraseñas más comunes y hackeadas del mundo.',
+            'This is a top-100 common password': '¡Alerta! Esta está entre las 100 contraseñas más comunes del mundo.',
+            'This is a very common password': 'Esta es una contraseña muy común y aparece en diccionarios de ataque.',
+            'This is similar to a commonly used password': 'Es demasiado parecida a una contraseña muy común.',
+            'A word by itself is easy to guess': 'Una sola palabra de diccionario es fácil de adivinar.',
+            'Names and surnames by themselves are easy to guess': 'Los nombres y apellidos por sí solos son fáciles de adivinar.',
+            'Common names and surnames are easy to guess': 'Los nombres y apellidos comunes son fáciles de adivinar.',
+            'Predictable substitutions like "@" instead of "a" don\'t help very much': 'Sustituciones predecibles como "@" por "a" o "0" por "o" no protegen contra ataques modernos.'
+        };
+
+        const SUGGESTION_MAP = {
+            'Use a few words, avoid common phrases': 'Usa varias palabras sin relación entre sí y evita frases populares.',
+            'No need for symbols, digits, or uppercase letters': 'No necesitas símbolos complicados si usas una frase larga de palabras poco comunes.',
+            'Add another word or two. Uncommon words are better.': 'Agrega una o dos palabras más. Las palabras poco comunes fortalecen mucho la clave.',
+            'Use a longer keyboard pattern with more turns': 'Evita patrones de teclado predecibles o cámbialos por palabras al azar.',
+            'Avoid repeated words and characters': 'Evita repetir las mismas letras, números o palabras.',
+            'Avoid sequences': 'Evita secuencias obvias como 12345 o abcd.',
+            'Avoid recent years': 'Evita incluir el año actual o años recientes.',
+            'Avoid years that are associated with you': 'Evita años relacionados contigo (nacimiento, aniversario, año actual).',
+            'Avoid dates and years that are associated with you': 'Evita fechas personales o años asociados a ti.',
+            'Capitalization doesn\'t help very much': 'Poner solo la primera letra en mayúscula no aumenta mucho la seguridad.',
+            'All-uppercase is almost as easy to guess as all-lowercase': 'Escribir todo en mayúsculas es casi igual de fácil de adivinar que todo en minúsculas.',
+            'Reversed words aren\'t much harder to guess': 'Escribir palabras al revés tampoco engaña a los programas de ataque.',
+            'Predictable substitutions like \'@\' instead of \'a\' don\'t help very much': 'Cambiar letras por símbolos obvios (como @ por a, 0 por o) ya es detectado automáticamente por los atacantes.'
+        };
+
+        const PATTERN_META = {
+            dictionary: { label: 'Diccionario', color: 'bg-rose-500/20 text-rose-300 border-rose-500/40', icon: 'fa-book' },
+            l33t:       { label: 'Leetspeak (@/0)', color: 'bg-amber-500/20 text-amber-300 border-amber-500/40', icon: 'fa-mask' },
+            spatial:    { label: 'Teclado', color: 'bg-orange-500/20 text-orange-300 border-orange-500/40', icon: 'fa-keyboard' },
+            repeat:     { label: 'Repetición', color: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40', icon: 'fa-repeat' },
+            sequence:   { label: 'Secuencia', color: 'bg-orange-500/20 text-orange-300 border-orange-500/40', icon: 'fa-arrow-down-1-9' },
+            date:       { label: 'Fecha/Año', color: 'bg-pink-500/20 text-pink-300 border-pink-500/40', icon: 'fa-calendar-days' },
+            bruteforce: { label: 'Fuerza bruta', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', icon: 'fa-shield-halved' }
+        };
+
+        const SCORE_CONFIG = [
+            { label: 'Muy Débil', badgeClass: 'bg-rose-100 text-rose-800 border border-rose-200', barColor: 'bg-rose-500', summary: 'Nivel crítico. Un atacante podría descifrar esta contraseña casi al instante usando listas de claves filtradas o patrones muy comunes. Nunca la uses en cuentas reales.' },
+            { label: 'Débil', badgeClass: 'bg-orange-100 text-orange-800 border border-orange-200', barColor: 'bg-orange-500', summary: 'Todavía es vulnerable. Aunque pueda parecer aceptable a simple vista, contiene patrones predecibles (palabras comunes, años o secuencias) que los programas automáticos rompen rápido.' },
+            { label: 'Regular', badgeClass: 'bg-amber-100 text-amber-800 border border-amber-200', barColor: 'bg-amber-400', summary: 'Protección intermedia. Resiste intentos manuales básicos, pero si una base de datos se filtra, podría ser descifrada con equipo especializado. Agrégale longitud o palabras inesperadas.' },
+            { label: 'Fuerte', badgeClass: 'bg-lime-100 text-lime-800 border border-lime-300', barColor: 'bg-lime-500', summary: '¡Buen trabajo! Esta contraseña ofrece una protección sólida frente a la mayoría de los ataques actuales. Recuerda no reutilizarla en otros sitios.' },
+            { label: 'Muy Fuerte', badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300', barColor: 'bg-emerald-500', summary: '¡Excelente nivel de seguridad! Su combinación de longitud y baja previsibilidad haría que descifrarla tome siglos incluso con equipos muy potentes.' }
+        ];
+
+        /* =========================================================================
+           3. REFERENCIAS AL DOM Y EVENTOS
+           ========================================================================= */
+        const passwordInput = document.getElementById('passwordInput');
+        const charCount = document.getElementById('charCount');
+        const clearBtn = document.getElementById('clearBtn');
+        const toggleVisibilityBtn = document.getElementById('toggleVisibilityBtn');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        const strengthBadge = document.getElementById('strengthBadge');
+        const crackTimePrimary = document.getElementById('crackTimePrimary');
+        const crackTimeGpu = document.getElementById('crackTimeGpu');
+
+        const adminSummaryText = document.getElementById('adminSummaryText');
+        const adminAlertsContainer = document.getElementById('adminAlertsContainer');
+
+        const regexTrapAlert = document.getElementById('regexTrapAlert');
+        const tiScore = document.getElementById('tiScore');
+        const tiLog10 = document.getElementById('tiLog10');
+        const tiGuesses = document.getElementById('tiGuesses');
+        const patternsContainer = document.getElementById('patternsContainer');
+        const zmprovTerminal = document.getElementById('zmprovTerminal');
+
+        // Mostrar / ocultar contraseña
+        toggleVisibilityBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.className = isPassword ? 'fa-solid fa-eye-slash text-lg' : 'fa-solid fa-eye text-lg';
+        });
+
+        // Botón limpiar
+        clearBtn.addEventListener('click', () => {
+            passwordInput.value = '';
+            passwordInput.focus();
+            analyzePassword('');
+        });
+
+        // Análisis en tiempo real
+        passwordInput.addEventListener('input', (e) => {
+            analyzePassword(e.target.value);
+        });
+
+        /**
+         * Rellena el campo con un ejemplo de demostración en vivo y muestra el texto
+         * para facilitar la proyección en videoconferencia.
+         */
+        function loadExample(sample, scrollToTop = false) {
+            passwordInput.value = sample;
+            passwordInput.type = 'text';
+            eyeIcon.className = 'fa-solid fa-eye-slash text-lg';
+            analyzePassword(sample);
+            if (scrollToTop) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        /* =========================================================================
+           4. LÓGICA PRINCIPAL DE ANÁLISIS Y ACTUALIZACIÓN DE INTERFAZ
+           ========================================================================= */
+        function analyzePassword(pwd) {
+            charCount.textContent = `${pwd.length} ${pwd.length === 1 ? 'caracter' : 'caracteres'}`;
+            clearBtn.classList.toggle('hidden', pwd.length === 0);
+
+            if (!pwd) {
+                resetUI();
+                return;
+            }
+
+            const result = evaluatePasswordEngine(pwd);
+            const score = result.score;
+            const cfg = SCORE_CONFIG[score];
+
+            // 1. Barra segmentada de 5 niveles
+            strengthBadge.textContent = `${cfg.label} (${score}/4)`;
+            strengthBadge.className = `px-3 py-1 rounded-full text-xs font-bold ${cfg.badgeClass}`;
+            for (let i = 0; i < 5; i++) {
+                const seg = document.getElementById(`seg-${i}`);
+                seg.className = `rounded-full transition-all duration-300 ${i <= score ? cfg.barColor : 'bg-slate-200'}`;
+            }
+
+            // 2. Tiempos de descifrado en español
+            const ctOnlineThrottled = translateCrackTime(result.crack_times_display.online_throttling_100_per_hour);
+            const ctOnlineUnthrottled = translateCrackTime(result.crack_times_display.online_no_throttling_10_per_second);
+            const ctOfflineSlow = translateCrackTime(result.crack_times_display.offline_slow_hashing_1e4_per_second);
+            const ctOfflineFast = translateCrackTime(result.crack_times_display.offline_fast_hashing_1e10_per_second);
+
+            crackTimePrimary.textContent = capitalizeFirst(ctOfflineSlow);
+            crackTimeGpu.textContent = capitalizeFirst(ctOfflineFast);
+
+            document.getElementById('ct-online-throttled').textContent = ctOnlineThrottled;
+            document.getElementById('ct-online-unthrottled').textContent = ctOnlineUnthrottled;
+            document.getElementById('ct-offline-slow').textContent = ctOfflineSlow;
+            document.getElementById('ct-offline-fast').textContent = ctOfflineFast;
+
+            // 3. Perspectiva Administrativa
+            adminSummaryText.textContent = cfg.summary;
+            renderAdminAlerts(result, pwd);
+            updateBestPractices(result, pwd);
+
+            // 4. Perspectiva TI: Métricas y secuencia
+            tiScore.textContent = `${score} / 4`;
+            tiLog10.textContent = Number(result.guesses_log10).toFixed(2);
+            tiGuesses.textContent = formatScientific(result.guesses);
+            renderSequenceBadges(result.sequence);
+
+            // 5. Políticas Zimbra / Carbonio COS (zmprov) + Alerta Trampa Regex
+            evaluateZimbraPolicies(pwd, score);
+        }
+
+        function renderAdminAlerts(result, pwd) {
+            const alerts = [];
+            const seq = result.sequence || [];
+
+            // Traducir advertencia principal de zxcvbn
+            if (result.feedback && result.feedback.warning) {
+                const translated = WARNING_MAP[result.feedback.warning] || result.feedback.warning;
+                alerts.push({ type: 'warning', text: translated });
+            }
+
+            // Detectar patrones específicos para dar mensajes claros en español
+            const hasLeet = seq.some(s => s.l33t);
+            const hasDate = seq.some(s => s.pattern === 'date');
+            const hasSpatial = seq.some(s => s.pattern === 'spatial');
+            const hasRepeat = seq.some(s => s.pattern === 'repeat');
+            const hasSeq = seq.some(s => s.pattern === 'sequence');
+
+            if (hasLeet && !alerts.some(a => a.text.includes('Sustituciones'))) {
+                alerts.push({ type: 'warning', text: 'Se detectaron sustituciones obvias (como "@" por "a" o "0" por "o"). Los atacantes prueban estas variantes automáticamente.' });
+            }
+            if (hasDate && !alerts.some(a => a.text.includes('año') || a.text.includes('fecha'))) {
+                alerts.push({ type: 'warning', text: 'Se detectó una fecha o año reciente. Evita usar años como 2026 o fechas personales.' });
+            }
+            if (hasSpatial && !alerts.some(a => a.text.includes('teclado'))) {
+                alerts.push({ type: 'warning', text: 'Se detectó una secuencia de teclas cercanas en el teclado (como "qwerty").' });
+            }
+            if (hasRepeat && !alerts.some(a => a.text.includes('repetic'))) {
+                alerts.push({ type: 'info', text: 'Contiene repeticiones de caracteres que reducen la variedad real de la contraseña.' });
+            }
+            if (hasSeq && !alerts.some(a => a.text.includes('secuencia'))) {
+                alerts.push({ type: 'info', text: 'Contiene secuencias predecibles como "12345" o "abcd".' });
+            }
+
+            // Traducir sugerencias de zxcvbn
+            if (result.feedback && Array.isArray(result.feedback.suggestions)) {
+                result.feedback.suggestions.forEach(sug => {
+                    const translated = SUGGESTION_MAP[sug] || sug;
+                    if (!alerts.some(a => a.text === translated)) {
+                        alerts.push({ type: 'tip', text: translated });
+                    }
+                });
+            }
+
+            if (alerts.length === 0) {
+                alerts.push({
+                    type: 'success',
+                    text: '¡Sin patrones débiles detectados! Es una contraseña robusta. Guárdala en un gestor de contraseñas y activa la autenticación en dos pasos (2FA).'
+                });
+            }
+
+            adminAlertsContainer.innerHTML = alerts.map(a => {
+                if (a.type === 'warning') {
+                    return `<div class="flex items-start gap-2.5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
+                        <span>${escapeHtml(a.text)}</span>
+                    </div>`;
+                }
+                if (a.type === 'success') {
+                    return `<div class="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800">
+                        <i class="fa-solid fa-circle-check text-emerald-500 mt-0.5 shrink-0"></i>
+                        <span>${escapeHtml(a.text)}</span>
+                    </div>`;
+                }
+                return `<div class="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900">
+                    <i class="fa-solid fa-lightbulb text-amber-500 mt-0.5 shrink-0"></i>
+                    <span>${escapeHtml(a.text)}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function updateBestPractices(result, pwd) {
+            const seq = result.sequence || [];
+            const isLong = pwd.length >= 14;
+            const noDatesOrSeq = !seq.some(s => s.pattern === 'date' || s.pattern === 'sequence' || s.pattern === 'spatial');
+            const noLeet = !seq.some(s => s.l33t);
+            const goodPassphraseOrRandom = result.score >= 3 && pwd.length >= 14;
+
+            setChecklistState('bp-length', isLong);
+            setChecklistState('bp-nodates', noDatesOrSeq);
+            setChecklistState('bp-noleet', noLeet);
+            setChecklistState('bp-passphrase', goodPassphraseOrRandom);
+        }
+
+        function setChecklistState(elementId, passed) {
+            const el = document.getElementById(elementId);
+            const icon = el.querySelector('i');
+            if (passed) {
+                el.className = 'flex items-start gap-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 transition-colors';
+                icon.className = 'fa-solid fa-circle-check text-emerald-600 mt-0.5 shrink-0';
+            } else {
+                el.className = 'flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors';
+                icon.className = 'fa-solid fa-circle-xmark text-rose-400 mt-0.5 shrink-0';
+            }
+        }
+
+        function renderSequenceBadges(sequence) {
+            if (!sequence || sequence.length === 0) {
+                patternsContainer.innerHTML = '<span class="text-xs font-mono text-slate-500">Sin fragmentos analizados...</span>';
+                return;
+            }
+
+            patternsContainer.innerHTML = sequence.map(item => {
+                const patternKey = item.l33t ? 'l33t' : (PATTERN_META[item.pattern] ? item.pattern : 'bruteforce');
+                const meta = PATTERN_META[patternKey];
+                const extra = item.l33t && item.matched_word ? ` → "${item.matched_word}"` : '';
+                return `
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-mono ${meta.color}">
+                        <i class="fa-solid ${meta.icon} text-[10px]"></i>
+                        <strong class="text-white">"${escapeHtml(item.token)}"</strong>
+                        <span class="opacity-85">(${meta.label}${escapeHtml(extra)})</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function evaluateZimbraPolicies(pwd, zxcvbnScore) {
+            const hasLen12 = pwd.length >= 12;
+            const hasUpper = /[A-Z]/.test(pwd);
+            const hasLower = /[a-z]/.test(pwd);
+            const hasNum = /[0-9]/.test(pwd);
+            const hasSym = /[^A-Za-z0-9]/.test(pwd);
+            const inBlacklist = BASIC_BLACKLIST.includes(pwd.toLowerCase());
+
+            setCosPill('cos-len', hasLen12, 'Long ≥ 12');
+            setCosPill('cos-upper', hasUpper, 'Mayús ≥ 1');
+            setCosPill('cos-lower', hasLower, 'Minús ≥ 1');
+            setCosPill('cos-num', hasNum, 'Núm ≥ 1');
+            setCosPill('cos-sym', hasSym, 'Símb ≥ 1');
+            setCosPill('cos-dict', !inBlacklist, 'No lista negra');
+
+            // Alerta especial educativa: cumple TODAS las reglas Regex tradicionales, pero zxcvbn <= 2
+            const passesAllRegex = hasLen12 && hasUpper && hasLower && hasNum && hasSym;
+            const isRegexTrap = passesAllRegex && zxcvbnScore <= 2;
+            regexTrapAlert.classList.toggle('hidden', !isRegexTrap);
+
+            // Construcción dinámica de comandos zmprov
+            const lines = [];
+            if (inBlacklist) {
+                lines.push('# [CRÍTICO] Contraseña en lista negra conocida. Bloqueo recomendado:');
+                lines.push('zmprov ma usuario@dependencia.unam.mx zimbraPasswordLocked TRUE');
+                lines.push('zmprov mc default zimbraPasswordLockoutEnabled TRUE');
+                lines.push('zmprov mc default zimbraPasswordLockoutMaxFailures 5');
+            } else {
+                const missing = [];
+                if (!hasLen12) missing.push('zmprov mc default zimbraPasswordMinLength 12');
+                if (!hasUpper) missing.push('zmprov mc default zimbraPasswordMinUpperCaseChars 1');
+                if (!hasLower) missing.push('zmprov mc default zimbraPasswordMinLowerCaseChars 1');
+                if (!hasNum) missing.push('zmprov mc default zimbraPasswordMinNumericChars 1');
+                if (!hasSym) missing.push('zmprov mc default zimbraPasswordMinPunctuationChars 1');
+
+                if (missing.length > 0) {
+                    lines.push('# Directivas COS faltantes para rechazar esta contraseña en Zimbra/Carbonio:');
+                    lines.push(...missing);
+                    lines.push('zmprov mc default zimbraPasswordLockoutEnabled TRUE');
+                } else if (isRegexTrap) {
+                    lines.push('# [ADVERTENCIA] Esta clave PASA todas las reglas COS tradicionales:');
+                    lines.push('# zimbraPasswordMinLength=12, Upper=1, Lower=1, Numeric=1, Punctuation=1');
+                    lines.push('# Recomendación: activar bloqueo por intentos y diccionario externo:');
+                    lines.push('zmprov mc default zimbraPasswordLockoutEnabled TRUE');
+                    lines.push('zmprov mc default zimbraPasswordMinLength 14');
+                } else {
+                    lines.push('# [OK] Cumple políticas estrictas de COS en Zimbra/Carbonio:');
+                    lines.push('zmprov mc default zimbraPasswordMinLength 12 \\');
+                    lines.push('  zimbraPasswordMinUpperCaseChars 1 \\');
+                    lines.push('  zimbraPasswordMinLowerCaseChars 1 \\');
+                    lines.push('  zimbraPasswordMinNumericChars 1 \\');
+                    lines.push('  zimbraPasswordMinPunctuationChars 1 \\');
+                    lines.push('  zimbraPasswordLockoutEnabled TRUE');
+                }
+            }
+
+            zmprovTerminal.textContent = lines.join('\n');
+        }
+
+        function setCosPill(id, ok, label) {
+            const el = document.getElementById(id);
+            if (ok) {
+                el.className = 'px-2 py-1 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/40';
+                el.textContent = `✓ ${label}`;
+            } else {
+                el.className = 'px-2 py-1 rounded bg-rose-500/15 text-rose-300 border border-rose-500/40';
+                el.textContent = `✕ ${label}`;
+            }
+        }
+
+        function resetUI() {
+            strengthBadge.textContent = 'Sin evaluar';
+            strengthBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600';
+            for (let i = 0; i < 5; i++) {
+                document.getElementById(`seg-${i}`).className = 'rounded-full bg-slate-200 transition-all duration-300';
+            }
+
+            crackTimePrimary.textContent = '—';
+            crackTimeGpu.textContent = '—';
+            document.getElementById('ct-online-throttled').textContent = '—';
+            document.getElementById('ct-online-unthrottled').textContent = '—';
+            document.getElementById('ct-offline-slow').textContent = '—';
+            document.getElementById('ct-offline-fast').textContent = '—';
+
+            adminSummaryText.textContent = 'Escribe una contraseña arriba o haz clic en cualquiera de los ejemplos para analizar qué tan fácil o difícil sería para un atacante adivinarla.';
+            adminAlertsContainer.innerHTML = '<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 italic">Esperando una contraseña para generar recomendaciones...</div>';
+
+            ['bp-length', 'bp-nodates', 'bp-noleet', 'bp-passphrase'].forEach(id => {
+                const el = document.getElementById(id);
+                el.className = 'flex items-start gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200 transition-colors';
+                el.querySelector('i').className = 'fa-regular fa-circle text-slate-400 mt-0.5 shrink-0';
+            });
+
+            regexTrapAlert.classList.add('hidden');
+            tiScore.textContent = '— / 4';
+            tiLog10.textContent = '—';
+            tiGuesses.textContent = '—';
+            patternsContainer.innerHTML = '<span class="text-xs font-mono text-slate-500">Sin fragmentos analizados aún...</span>';
+
+            const cosDefaults = [
+                ['cos-len', 'Long ≥ 12'], ['cos-upper', 'Mayús ≥ 1'], ['cos-lower', 'Minús ≥ 1'],
+                ['cos-num', 'Núm ≥ 1'], ['cos-sym', 'Símb ≥ 1'], ['cos-dict', 'No lista negra']
+            ];
+            cosDefaults.forEach(([id, label]) => {
+                const el = document.getElementById(id);
+                el.className = 'px-2 py-1 rounded bg-slate-800/70 text-slate-400 border border-slate-700/80';
+                el.textContent = `○ ${label}`;
+            });
+            zmprovTerminal.textContent = '# Esperando entrada para evaluar políticas COS en Zimbra/Carbonio...';
+        }
+
+        /* =========================================================================
+           5. INTERACCIONES AUXILIARES (PESTAÑAS, COLAPSABLE, COPIAR, UTILIDADES)
+           ========================================================================= */
+        function toggleCompareSection() {
+            const body = document.getElementById('compareBody');
+            const chevron = document.getElementById('compareChevron');
+            const btn = document.getElementById('toggleCompareBtn');
+            const isHidden = body.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180', isHidden);
+            btn.setAttribute('aria-expanded', String(!isHidden));
+        }
+
+        function switchCompareTab(tab) {
+            const tabTrad = document.getElementById('tabTraditional');
+            const tabPass = document.getElementById('tabPassphrase');
+            const panelTrad = document.getElementById('panelTraditional');
+            const panelPass = document.getElementById('panelPassphrase');
+
+            if (tab === 'traditional') {
+                tabTrad.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-indigo-700 shadow-sm';
+                tabPass.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900';
+                panelTrad.classList.remove('hidden');
+                panelPass.classList.add('hidden');
+            } else {
+                tabPass.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all bg-white text-indigo-700 shadow-sm';
+                tabTrad.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all text-slate-600 hover:text-slate-900';
+                panelPass.classList.remove('hidden');
+                panelTrad.classList.add('hidden');
+            }
+        }
+
+        function copyZmprovCommands() {
+            const text = zmprovTerminal.textContent;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Comandos zmprov copiados al portapapeles');
+            } catch (err) {
+                showToast('No se pudo copiar automáticamente');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.add('hidden'), 2600);
+        }
+
+        function formatScientific(num) {
+            if (!isFinite(num)) return '> 10²⁵';
+            if (num < 10000) return Math.round(num).toLocaleString('es-MX');
+            return num.toExponential(1).replace('e+', ' × 10^');
+        }
+
+        function capitalizeFirst(str) {
+            if (!str) return '—';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        /* =========================================================================
+           6. INICIALIZACIÓN AL CARGAR LA VENTANA
+           ========================================================================= */
+        window.onload = function () {
+            const badge = document.getElementById('engineStatusBadge');
+            const dot = document.getElementById('engineStatusDot');
+            const text = document.getElementById('engineStatusText');
+
+            if (typeof window.zxcvbn === 'function') {
+                usingZxcvbn = true;
+                badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+                text.textContent = 'Motor zxcvbn activo';
+            } else {
+                usingZxcvbn = false;
+                badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                text.textContent = 'Modo respaldo sin conexión';
+            }
+
+            resetUI();
+        };
+    </script>
+</body>
+</html>

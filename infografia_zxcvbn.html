@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: ¿Qué es zxcvbn? | Taller Prácticas sobre Seguridad Informática</title>
+    <!-- Tailwind CSS vía CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter y Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Fondo sutil de póster educativo */
+        body {
+            background-color: #f1f5f9;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Estilo visual de teclas del teclado QWERTY */
+        .kbd-key {
+            box-shadow: 0 3px 0 rgba(15, 23, 42, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .kbd-key-highlight {
+            box-shadow: 0 3px 0 #b45309, 0 0 14px rgba(251, 191, 36, 0.45);
+        }
+
+        /* Transición suave para el módulo interactivo de la Fase 2 */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-panel {
+            animation: fadeSlideIn 0.25s ease-out forwards;
+        }
+
+        /* Reglas optimizadas para impresión y guardado como PDF */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body {
+                background: #ffffff !important;
+                background-image: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-break-avoid {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .poster-wrapper {
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased py-6 px-3 sm:px-6 lg:px-8">
+
+    <!-- Contenedor Principal Estilo Póster Educativo -->
+    <div class="poster-wrapper max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+
+        <!-- ===================================================================
+             SECCIÓN 1: ENCABEZADO / HERO + ILUSTRACIÓN DE TECLADO QWERTY
+             =================================================================== -->
+        <header class="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white px-6 py-8 sm:px-10 sm:py-10 overflow-hidden print-break-avoid">
+            <!-- Detalle decorativo superior -->
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 via-emerald-400 to-sky-400"></div>
+            <!-- Brillo radial sutil -->
+            <div class="absolute -top-24 -right-24 w-72 h-72 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Barra superior con origen y botón discreto de impresión -->
+            <div class="relative z-10 flex flex-wrap items-center justify-between gap-3 mb-6">
+                <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 backdrop-blur-sm px-3.5 py-1.5 rounded-full text-xs font-medium text-sky-200">
+                    <!-- Icono SVG escudo -->
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4z"/>
+                    </svg>
+                    <span>Creado por <strong>Dan Wheeler</strong> en Dropbox (2012) • USENIX Security 2016 • Usado por Bitwarden</span>
+                </div>
+
+                <!-- Botón discreto Imprimir / Guardar PDF -->
+                <button
+                    type="button"
+                    onclick="window.print()"
+                    class="no-print inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-600/80 text-xs font-semibold transition-colors cursor-pointer"
+                    title="Imprimir infografía o guardar como PDF"
+                >
+                    <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V4h12v5M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v6H6v-6z"/>
+                    </svg>
+                    <span>Imprimir / Guardar PDF</span>
+                </button>
+            </div>
+
+            <!-- Grid del Hero: Título a la izquierda, Teclado QWERTY a la derecha -->
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-amber-400">
+                        Infografía Didáctica • Sesión 5: Gestión de Contraseñas
+                    </p>
+                    <h1 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                        ¿Qué es <span class="font-mono text-amber-400">zxcvbn</span>?
+                    </h1>
+                    <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl">
+                        El motor inteligente que evalúa contraseñas <strong class="text-white">pensando como un atacante real</strong>, superando las reglas rígidas tradicionales.
+                    </p>
+                </div>
+
+                <!-- Ilustración visual de Teclado QWERTY -->
+                <div class="lg:col-span-5">
+                    <div class="bg-slate-900/90 border border-slate-700/90 rounded-2xl p-4 shadow-xl">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">¿De dónde viene su nombre?</span>
+                            <span class="text-[11px] font-mono font-semibold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/30">Teclado QWERTY</span>
+                        </div>
+
+                        <!-- Filas del teclado -->
+                        <div class="space-y-1.5 font-mono text-xs select-none" aria-label="Ilustración de teclado QWERTY con las teclas Z, X, C, V, B, N resaltadas">
+                            <!-- Fila 1 -->
+                            <div class="grid grid-cols-10 gap-1">
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">Q</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">W</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">E</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">R</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">T</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">Y</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">U</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">I</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">O</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">P</span>
+                            </div>
+                            <!-- Fila 2 -->
+                            <div class="grid grid-cols-9 gap-1 px-2">
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">A</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">S</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">D</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">F</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">G</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">H</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">J</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">K</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">L</span>
+                            </div>
+                            <!-- Fila 3 con Z X C V B N resaltadas -->
+                            <div class="grid grid-cols-7 gap-1 px-4">
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">Z</span>
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">X</span>
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">C</span>
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">V</span>
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">B</span>
+                                <span class="kbd-key-highlight bg-amber-400 text-slate-950 font-extrabold rounded py-1.5 text-center border border-amber-300">N</span>
+                                <span class="kbd-key bg-slate-800 text-slate-400 rounded py-1.5 text-center border border-slate-700">M</span>
+                            </div>
+                        </div>
+
+                        <p class="mt-3 text-[11px] text-slate-300 leading-snug">
+                            Su nombre toma la fila inferior del teclado (<span class="font-mono text-amber-300 font-semibold">zxcvbn</span>), en alusión a los patrones predecibles que los humanos solemos teclear al inventar contraseñas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cuerpo de la Infografía -->
+        <main class="p-6 sm:p-10 space-y-10">
+
+            <!-- ===================================================================
+                 SECCIÓN 2: COMPARATIVA VISUAL (REGEX VS. MOTOR ZXCVBN)
+                 =================================================================== -->
+            <section class="print-break-avoid">
+                <div class="flex items-center gap-3 mb-5">
+                    <span class="w-9 h-9 rounded-xl bg-blue-900 text-white flex items-center justify-center font-bold text-sm shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                            Validador Clásico (Regex) vs. Motor <span class="font-mono text-blue-900">zxcvbn</span>
+                        </h2>
+                        <p class="text-sm text-slate-500">Por qué contar tipos de caracteres ya no garantiza una contraseña segura</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Tarjeta Izquierda: Validador Clásico (Regex) -->
+                    <div class="rounded-2xl border-2 border-slate-200 bg-slate-50 p-6 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
+                                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
+                                    Validador Clásico (Regex)
+                                </span>
+                                <span class="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">Enfoque rígido</span>
+                            </div>
+
+                            <p class="text-sm font-semibold text-slate-800 bg-white border border-slate-200 rounded-xl px-4 py-2.5 mb-4">
+                                “Revisa si cumpliste la receta” <span class="font-normal text-slate-500">(mayúscula + número + símbolo).</span>
+                            </p>
+
+                            <!-- Ejemplos contrastados -->
+                            <div class="space-y-3">
+                                <!-- Ejemplo 1: Falso positivo -->
+                                <div class="bg-white rounded-xl p-3.5 border border-rose-200 shadow-sm">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <code class="font-mono font-bold text-slate-900 text-sm">P@ssw0rd2026!</code>
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                                            ✓ Aceptada por Regex
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-rose-700 font-medium">
+                                        Falsa seguridad: cumple la receta, pero <strong>cae en segundos con Hashcat</strong> usando reglas de diccionario y <em>leetspeak</em>.
+                                    </p>
+                                </div>
+
+                                <!-- Ejemplo 2: Falso negativo -->
+                                <div class="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm">
+                                    <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                                        <code class="font-mono font-bold text-slate-900 text-xs sm:text-sm">perro-cafetera-nube-relampago</code>
+                                        <span class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
+                                            ✕ Rechazada por Regex
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-slate-600">
+                                        Rechazada por falta de mayúsculas, números o símbolos especiales, <strong>aunque en realidad es muy robusta</strong> (29 caracteres).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Derecha: Motor zxcvbn -->
+                    <div class="rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/70 p-6 flex flex-col justify-between shadow-sm">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="inline-flex items-center gap-2 text-sm font-bold text-blue-950">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                    </svg>
+                                    Motor <span class="font-mono">zxcvbn</span>
+                                </span>
+                                <span class="text-[11px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Enfoque realista</span>
+                            </div>
+
+                            <p class="text-sm font-semibold text-blue-950 bg-white border border-emerald-200 rounded-xl px-4 py-2.5 mb-4">
+                                “Actúa como un atacante simulado en tiempo real.”
+                            </p>
+
+                            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                                En lugar de verificar si pusiste un símbolo, calcula <strong>cuántos intentos (<span class="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">guesses</span>)</strong> le tomaría a un atacante adivinar tu clave buscando activamente patrones humanos predecibles.
+                            </p>
+
+                            <!-- Respuesta de zxcvbn a los mismos ejemplos -->
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between gap-2 bg-white/90 rounded-xl px-3.5 py-2.5 border border-rose-200 text-xs">
+                                    <code class="font-mono font-bold text-slate-800">P@ssw0rd2026!</code>
+                                    <span class="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">Penalizada (Diccionario + año)</span>
+                                </div>
+                                <div class="flex items-center justify-between gap-2 bg-white/90 rounded-xl px-3.5 py-2.5 border border-emerald-200 text-xs">
+                                    <code class="font-mono font-bold text-slate-800 truncate">perro-cafetera-nube-relampago</code>
+                                    <span class="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">Muy Fuerte (Siglos)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================================================================
+                 SECCIÓN 3: CÓMO FUNCIONA INTERNAMENTE (LAS 3 FASES)
+                 =================================================================== -->
+            <section class="space-y-8">
+                <div class="border-b border-slate-200 pb-3">
+                    <p class="text-xs font-bold uppercase tracking-widest text-blue-800">Arquitectura interna</p>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-0.5">
+                        Cómo funciona <span class="font-mono text-blue-900">zxcvbn</span> en 3 Fases
+                    </h2>
+                </div>
+
+                <!-- ---------------------------------------------------------------
+                     FASE 1: DETECCIÓN DE PATRONES (6 TARJETAS)
+                     --------------------------------------------------------------- -->
+                <div class="print-break-avoid">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="w-10 h-10 rounded-2xl bg-blue-900 text-white font-black text-lg flex items-center justify-center shadow-md shrink-0">1</span>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Detección de Patrones <span class="text-slate-400 font-semibold text-base">(Pattern Matching)</span></h3>
+                            <p class="text-sm text-slate-600">Escanea la contraseña completa y todas sus subcadenas con 6 analizadores especializados:</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Patrón 1 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-slate-900">1. Diccionarios por frecuencia</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+                                Incluye ~30,000 contraseñas filtradas, palabras comunes en inglés, nombres propios y apellidos ordenados por popularidad.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                                <span class="bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 rounded">password</span>
+                                <span class="bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 rounded">welcome</span>
+                                <span class="bg-rose-50 text-rose-800 border border-rose-200 px-2 py-0.5 rounded">michael</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrón 2 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-slate-900">2. L33t speak e invertido</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+                                Detecta sustituciones obvias de letras por símbolos/números y palabras escritas al revés, penalizándolas de inmediato.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">@→a</span>
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">3→e</span>
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">0→o</span>
+                                <span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded">$→s</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrón 3 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16a1 1 0 011 1v8a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1zm3 3h.01M10 10h.01M14 10h.01M17 10h.01M8 14h8"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-slate-900">3. Patrones espaciales</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+                                Mapea la geometría física de teclados QWERTY, Dvorak y teclados numéricos para detectar recorridos de dedos.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                                <span class="bg-orange-50 text-orange-800 border border-orange-200 px-2 py-0.5 rounded">qwerty</span>
+                                <span class="bg-orange-50 text-orange-800 border border-orange-200 px-2 py-0.5 rounded">1qaz2wsx</span>
+                                <span class="bg-orange-50 text-orange-800 border border-orange-200 px-2 py-0.5 rounded">74123</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrón 4 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-yellow-100 text-yellow-800 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-slate-900">4. Repeticiones y secuencias</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+                                Identifica caracteres o bloques repetidos, así como secuencias alfabéticas o numéricas ascendentes y descendentes.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                                <span class="bg-yellow-50 text-yellow-900 border border-yellow-200 px-2 py-0.5 rounded">abcabc</span>
+                                <span class="bg-yellow-50 text-yellow-900 border border-yellow-200 px-2 py-0.5 rounded">aaaa</span>
+                                <span class="bg-yellow-50 text-yellow-900 border border-yellow-200 px-2 py-0.5 rounded">12345</span>
+                                <span class="bg-yellow-50 text-yellow-900 border border-yellow-200 px-2 py-0.5 rounded">zyxwv</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrón 5 -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:border-blue-300 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-slate-900">5. Fechas y años</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-2.5">
+                                Reconoce años recientes y formatos de fechas (cumpleaños, aniversarios) con o sin separadores.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+                                <span class="bg-pink-50 text-pink-800 border border-pink-200 px-2 py-0.5 rounded">1995</span>
+                                <span class="bg-pink-50 text-pink-800 border border-pink-200 px-2 py-0.5 rounded">23112026</span>
+                                <span class="bg-pink-50 text-pink-800 border border-pink-200 px-2 py-0.5 rounded">15-05-88</span>
+                            </div>
+                        </div>
+
+                        <!-- Patrón 6 -->
+                        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 hover:border-blue-400 transition-colors">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="w-8 h-8 rounded-lg bg-blue-900 text-white flex items-center justify-center shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                </span>
+                                <h4 class="font-bold text-sm text-blue-950">6. Diccionario contextual</h4>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed mb-2.5">
+                                Mediante <code class="font-mono bg-white px-1 rounded border border-blue-200 text-blue-900">user_inputs</code> permite inyectar palabras propias de la institución para penalizarlas.
+                            </p>
+                            <div class="font-mono text-[11px] bg-slate-900 text-emerald-300 px-2.5 py-1.5 rounded-lg">
+                                ["unam", "dgp", "zimbra"]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ---------------------------------------------------------------
+                     FASE 2: OPTIMIZACIÓN POR PROGRAMACIÓN DINÁMICA (INTERACTIVO)
+                     --------------------------------------------------------------- -->
+                <div class="print-break-avoid bg-slate-50 border border-slate-200 rounded-2xl p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-2xl bg-blue-900 text-white font-black text-lg flex items-center justify-center shadow-md shrink-0">2</span>
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Optimización por Programación Dinámica</h3>
+                                <p class="text-sm text-slate-600">Evalúa todas las descomposiciones posibles y elige <strong>la ruta de menor costo</strong> para un atacante.</p>
+                            </div>
+                        </div>
+                        <span class="no-print inline-flex items-center gap-1.5 text-xs font-bold text-blue-900 bg-blue-100 border border-blue-200 px-3 py-1 rounded-full self-start sm:self-center">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z"/></svg>
+                            Haz clic para explorar
+                        </span>
+                    </div>
+
+                    <!-- Botones selectores de los 3 ejemplos -->
+                    <div class="flex flex-wrap gap-2 mb-5" role="tablist" aria-label="Ejemplos de descomposición de zxcvbn">
+                        <button
+                            type="button"
+                            id="dp-btn-unam"
+                            onclick="selectDpExample('unam')"
+                            class="dp-tab px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer bg-blue-900 text-white border-blue-900 shadow-sm"
+                        >
+                            unam2026!
+                        </button>
+                        <button
+                            type="button"
+                            id="dp-btn-pass"
+                            onclick="selectDpExample('pass')"
+                            class="dp-tab px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer bg-white text-slate-700 border-slate-300 hover:border-blue-400"
+                        >
+                            P@ssw0rd2026!
+                        </button>
+                        <button
+                            type="button"
+                            id="dp-btn-phrase"
+                            onclick="selectDpExample('phrase')"
+                            class="dp-tab px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer bg-white text-slate-700 border-slate-300 hover:border-blue-400"
+                        >
+                            perro-cafetera-nube-relampago
+                        </button>
+                    </div>
+
+                    <!-- Panel visual dinámico de descomposición -->
+                    <div id="dpDisplay" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm animate-panel">
+                        <!-- Contenido generado por JS -->
+                    </div>
+                </div>
+
+                <!-- ---------------------------------------------------------------
+                     FASE 3: ESCALA DE PUNTUACIÓN (0 A 4) + 4 ESCENARIOS DE ATAQUE
+                     --------------------------------------------------------------- -->
+                <div class="print-break-avoid space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-blue-900 text-white font-black text-lg flex items-center justify-center shadow-md shrink-0">3</span>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Escala de Puntuación (<span class="font-mono text-blue-900">score 0–4</span>) y Escenarios de Ataque</h3>
+                            <p class="text-sm text-slate-600">A partir del número total de intentos estimados (<span class="font-mono text-xs">guesses</span>), proyecta el tiempo real de descifrado.</p>
+                        </div>
+                    </div>
+
+                    <!-- 5 Niveles de Score -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <!-- Score 0 -->
+                        <div class="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-black uppercase text-rose-700">Score 0</span>
+                                    <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+                                </div>
+                                <p class="font-extrabold text-rose-900 text-base">Muy débil</p>
+                                <p class="font-mono text-xs font-bold text-rose-700 mt-1">&lt; 10³ intentos</p>
+                            </div>
+                            <p class="text-[11px] text-rose-800/90 mt-2 pt-2 border-t border-rose-200/80">Descifrable casi al instante.</p>
+                        </div>
+
+                        <!-- Score 1 -->
+                        <div class="rounded-2xl border-2 border-orange-200 bg-orange-50 p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-black uppercase text-orange-700">Score 1</span>
+                                    <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                                </div>
+                                <p class="font-extrabold text-orange-900 text-base">Débil</p>
+                                <p class="font-mono text-xs font-bold text-orange-700 mt-1">&lt; 10⁶ intentos</p>
+                            </div>
+                            <p class="text-[11px] text-orange-800/90 mt-2 pt-2 border-t border-orange-200/80">Vulnerable a ataques en línea sin límite.</p>
+                        </div>
+
+                        <!-- Score 2 -->
+                        <div class="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-black uppercase text-amber-800">Score 2</span>
+                                    <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                </div>
+                                <p class="font-extrabold text-amber-950 text-base">Regular</p>
+                                <p class="font-mono text-xs font-bold text-amber-800 mt-1">&lt; 10⁸ intentos</p>
+                            </div>
+                            <p class="text-[11px] text-amber-900/90 mt-2 pt-2 border-t border-amber-200/80">Protección moderada en línea.</p>
+                        </div>
+
+                        <!-- Score 3 -->
+                        <div class="rounded-2xl border-2 border-lime-300 bg-lime-50 p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-black uppercase text-lime-800">Score 3</span>
+                                    <span class="w-3 h-3 rounded-full bg-lime-500"></span>
+                                </div>
+                                <p class="font-extrabold text-lime-950 text-base">Buena</p>
+                                <p class="font-mono text-xs font-bold text-lime-800 mt-1">&lt; 10¹⁰ intentos</p>
+                            </div>
+                            <p class="text-[11px] text-lime-900/90 mt-2 pt-2 border-t border-lime-200/80">Resiste ataques offline con hash lento.</p>
+                        </div>
+
+                        <!-- Score 4 -->
+                        <div class="rounded-2xl border-2 border-emerald-300 bg-emerald-50 p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-black uppercase text-emerald-800">Score 4</span>
+                                    <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                                </div>
+                                <p class="font-extrabold text-emerald-950 text-base">Muy fuerte</p>
+                                <p class="font-mono text-xs font-bold text-emerald-800 mt-1">≥ 10¹⁰ intentos</p>
+                            </div>
+                            <p class="text-[11px] text-emerald-900/90 mt-2 pt-2 border-t border-emerald-200/80">Alta resistencia incluso offline.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabla Comparativa de los 4 Escenarios de Velocidad -->
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-900 text-white text-xs uppercase tracking-wider">
+                                    <th class="py-3.5 px-4 font-bold">Escenario de ataque</th>
+                                    <th class="py-3.5 px-4 font-bold">Velocidad asumida</th>
+                                    <th class="py-3.5 px-4 font-bold">Contexto real</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-bold text-slate-800">Online con límite (throttled)</td>
+                                    <td class="py-3 px-4 font-mono font-semibold text-emerald-700 whitespace-nowrap">100 intentos / hora</td>
+                                    <td class="py-3 px-4 text-slate-600">Formularios con bloqueo tras <em>N</em> fallos o CAPTCHA.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="py-3 px-4 font-bold text-slate-800">Online sin límite</td>
+                                    <td class="py-3 px-4 font-mono font-semibold text-amber-700 whitespace-nowrap">10 intentos / segundo</td>
+                                    <td class="py-3 px-4 text-slate-600">Servicios expuestos sin protección contra fuerza bruta.</td>
+                                </tr>
+                                <tr class="bg-blue-50/50 hover:bg-blue-50">
+                                    <td class="py-3 px-4 font-bold text-blue-950">Offline (hash lento)</td>
+                                    <td class="py-3 px-4 font-mono font-bold text-blue-800 whitespace-nowrap">10⁴ intentos / segundo</td>
+                                    <td class="py-3 px-4 text-slate-700">Base de datos filtrada con algoritmos modernos (<strong>Argon2, bcrypt, scrypt</strong>).</td>
+                                </tr>
+                                <tr class="hover:bg-rose-50/40">
+                                    <td class="py-3 px-4 font-bold text-rose-900">Offline (hash rápido)</td>
+                                    <td class="py-3 px-4 font-mono font-bold text-rose-700 whitespace-nowrap">10¹⁰ intentos / segundo</td>
+                                    <td class="py-3 px-4 text-slate-700">Base de datos filtrada con hashes débiles (<strong>MD5, SHA-1</strong>) atacados con GPUs.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================================================================
+                 SECCIÓN 4: BLOQUE DUAL DE CIERRE (ADMINISTRATIVO VS. TI)
+                 =================================================================== -->
+            <section class="print-break-avoid grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Tarjeta Azul/Verde: Para el Personal Administrativo -->
+                <div class="rounded-2xl bg-gradient-to-br from-blue-900 via-teal-800 to-emerald-800 text-white p-6 sm:p-7 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-11 h-11 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
+                                <svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-200">Idea clave para llevar</span>
+                                <h3 class="text-xl font-extrabold">Para el Personal Administrativo</h3>
+                            </div>
+                        </div>
+
+                        <blockquote class="bg-white/10 border border-white/15 rounded-xl p-4 text-sm sm:text-base leading-relaxed text-white font-medium mb-4">
+                            “Mientras un validador clásico revisa la receta, <span class="font-mono text-amber-300 font-bold">zxcvbn</span> simula a un atacante intentando adivinar tu clave. Por eso las frases largas y sin datos personales ganan siempre.”
+                        </blockquote>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs font-semibold">
+                        <div class="bg-black/20 rounded-xl p-2.5 border border-white/10">
+                            <span class="block text-emerald-300 text-base font-extrabold">14+</span>
+                            caracteres
+                        </div>
+                        <div class="bg-black/20 rounded-xl p-2.5 border border-white/10">
+                            <span class="block text-amber-300 text-base font-extrabold">3–4</span>
+                            palabras al azar
+                        </div>
+                        <div class="bg-black/20 rounded-xl p-2.5 border border-white/10">
+                            <span class="block text-sky-300 text-base font-extrabold">Única</span>
+                            por cuenta
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta Oscura Estilo Terminal: Limitaciones y Notas Técnicas (Equipo de TI) -->
+                <div class="rounded-2xl bg-slate-950 text-slate-200 border border-slate-800 p-6 sm:p-7 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <!-- Barra estilo ventana de terminal -->
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-sky-400 shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-mono uppercase tracking-wider text-sky-400">sysadmin@unam:~$</span>
+                                    <h3 class="text-lg font-extrabold text-white">Limitaciones y Notas Técnicas (Equipo de TI)</h3>
+                                </div>
+                            </div>
+                            <div class="hidden sm:flex items-center gap-1.5" aria-hidden="true">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-3.5 text-xs sm:text-sm font-mono leading-relaxed">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-400 font-bold shrink-0">&gt;</span>
+                                <span>
+                                    <strong class="text-white">Sesgo de idioma:</strong> <span class="text-sky-300">v4.4.2</span> usa diccionarios en inglés; en español conviene pasar <span class="text-emerald-300">user_inputs</span> o migrar a <span class="text-emerald-300">zxcvbn-ts</span> (con soporte en español).
+                                </span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-400 font-bold shrink-0">&gt;</span>
+                                <span>
+                                    <strong class="text-white">Sin consulta de filtraciones en vivo:</strong> no reemplaza APIs como <span class="text-sky-300">Have I Been Pwned</span> (modelo <em>k-anonymity</em>).
+                                </span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-400 font-bold shrink-0">&gt;</span>
+                                <span>
+                                    <strong class="text-white">Peso del bundle:</strong> <span class="text-amber-300">~800 KB</span> sin comprimir (<span class="text-amber-300">~400 KB</span> gzip); se recomienda cargarlo de forma asíncrona en producción.
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ===================================================================
+             SECCIÓN 5: PIE DE PÁGINA INSTITUCIONAL
+             =================================================================== -->
+        <footer class="bg-slate-900 text-slate-400 px-6 py-4 text-center text-xs border-t border-slate-800">
+            <p class="font-medium text-slate-300">
+                Taller Prácticas sobre Seguridad Informática — Material Didáctico
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Lógica del Módulo Interactivo de la Fase 2 (Programación Dinámica) -->
+    <script>
+        /**
+         * Datos didácticos que muestran cómo zxcvbn compara el costo de fuerza bruta
+         * pura frente a la descomposición óptima por patrones (programación dinámica).
+         */
+        const DP_EXAMPLES = {
+            unam: {
+                password: 'unam2026!',
+                naiveCost: '≈ 10¹⁴ intentos (si se asumieran 9 caracteres al azar)',
+                optimalCost: '≈ 10⁴ intentos (¡10 mil millones de veces más barato!)',
+                verdictBadge: 'Score 1 • Débil',
+                verdictClass: 'bg-orange-100 text-orange-800 border-orange-300',
+                explanation: 'Si agregamos "unam" en user_inputs, zxcvbn descarta la fuerza bruta y divide la clave en un término institucional + un año reciente + un símbolo final.',
+                tokens: [
+                    { text: 'unam', type: 'Diccionario contextual (user_inputs)', style: 'bg-rose-100 text-rose-900 border-rose-300' },
+                    { text: '2026', type: 'Año reciente (date)', style: 'bg-pink-100 text-pink-900 border-pink-300' },
+                    { text: '!', type: 'Fuerza bruta (1 símbolo)', style: 'bg-slate-100 text-slate-800 border-slate-300' }
+                ]
+            },
+            pass: {
+                password: 'P@ssw0rd2026!',
+                naiveCost: '≈ 10²³ intentos (si los 13 caracteres fueran aleatorios)',
+                optimalCost: '≈ 10⁵ intentos (cae en segundos con GPU)',
+                verdictBadge: 'Score 1–2 • Trampa de Regex',
+                verdictClass: 'bg-rose-100 text-rose-800 border-rose-300',
+                explanation: 'Aunque tiene mayúscula, minúsculas, números y símbolos, zxcvbn revierte el l33t speak (@→a, 0→o) para descubrir "password", detecta el año 2026 y elige esa ruta mínima.',
+                tokens: [
+                    { text: 'P@ssw0rd', type: 'Diccionario + L33t ("password")', style: 'bg-amber-100 text-amber-950 border-amber-300' },
+                    { text: '2026', type: 'Año reciente (date)', style: 'bg-pink-100 text-pink-900 border-pink-300' },
+                    { text: '!', type: 'Fuerza bruta (1 símbolo)', style: 'bg-slate-100 text-slate-800 border-slate-300' }
+                ]
+            },
+            phrase: {
+                password: 'perro-cafetera-nube-relampago',
+                naiveCost: '≈ 10⁴¹ intentos (fuerza bruta total)',
+                optimalCost: '≥ 10¹⁶ intentos (incluso por la ruta óptima, toma siglos)',
+                verdictBadge: 'Score 4 • Muy Fuerte',
+                verdictClass: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+                explanation: 'Al combinar 4 palabras independientes y extensas con separadores, el producto de intentos de cada bloque se dispara exponencialmente: no existe ningún atajo barato para el atacante.',
+                tokens: [
+                    { text: 'perro', type: 'Bloque 1 (palabra/fuerza bruta)', style: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+                    { text: '-', type: 'Separador', style: 'bg-slate-100 text-slate-700 border-slate-300' },
+                    { text: 'cafetera', type: 'Bloque 2 (alta entropía)', style: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+                    { text: '-', type: 'Separador', style: 'bg-slate-100 text-slate-700 border-slate-300' },
+                    { text: 'nube', type: 'Bloque 3', style: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+                    { text: '-', type: 'Separador', style: 'bg-slate-100 text-slate-700 border-slate-300' },
+                    { text: 'relampago', type: 'Bloque 4 (largo)', style: 'bg-emerald-100 text-emerald-900 border-emerald-300' }
+                ]
+            }
+        };
+
+        /**
+         * Actualiza la vista interactiva de la Fase 2 según el ejemplo seleccionado.
+         */
+        function selectDpExample(key) {
+            const data = DP_EXAMPLES[key];
+            if (!data) return;
+
+            // Actualizar estado visual de los botones
+            const btnIds = { unam: 'dp-btn-unam', pass: 'dp-btn-pass', phrase: 'dp-btn-phrase' };
+            Object.entries(btnIds).forEach(([k, id]) => {
+                const btn = document.getElementById(id);
+                if (k === key) {
+                    btn.className = 'dp-tab px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer bg-blue-900 text-white border-blue-900 shadow-sm';
+                } else {
+                    btn.className = 'dp-tab px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-bold border-2 transition-all cursor-pointer bg-white text-slate-700 border-slate-300 hover:border-blue-400';
+                }
+            });
+
+            // Construir bloques visuales de descomposición
+            const tokensHtml = data.tokens.map(t => `
+                <div class="inline-flex flex-col items-center px-3 py-2 rounded-xl border-2 ${t.style}">
+                    <span class="font-mono font-extrabold text-sm sm:text-base">${t.text}</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-tight opacity-85 mt-0.5 text-center">${t.type}</span>
+                </div>
+            `).join('<span class="text-slate-400 font-bold self-center">+</span>');
+
+            // Renderizar panel con animación suave
+            const container = document.getElementById('dpDisplay');
+            container.classList.remove('animate-panel');
+            void container.offsetWidth; // Reiniciar animación CSS
+            container.classList.add('animate-panel');
+
+            container.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+                    <div class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        Descomposición óptima para: <span class="font-mono text-slate-900 normal-case text-sm ml-1">${data.password}</span>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full border ${data.verdictClass}">
+                        ${data.verdictBadge}
+                    </span>
+                </div>
+
+                <!-- Bloques de patrón -->
+                <div class="flex flex-wrap items-stretch gap-2 mb-5">
+                    ${tokensHtml}
+                </div>
+
+                <!-- Comparativa de costo: Ruta ingenua vs. Ruta óptima -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-xs">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <span class="font-bold text-slate-500 uppercase block mb-0.5">Ruta ingenua (fuerza bruta pura)</span>
+                        <span class="font-mono text-slate-700 font-semibold">${data.naiveCost}</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                        <span class="font-bold text-blue-900 uppercase block mb-0.5">Ruta elegida por zxcvbn (menor costo)</span>
+                        <span class="font-mono text-blue-950 font-bold">${data.optimalCost}</span>
+                    </div>
+                </div>
+
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    <strong class="text-slate-800">Análisis:</strong> ${data.explanation}
+                </p>
+            `;
+        }
+
+        // Inicializar con el primer ejemplo al cargar la página
+        window.onload = function () {
+            selectDpExample('unam');
+        };
+    </script>
+</body>
+</html>
