@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Cifrado AES-256 | Taller Prácticas sobre Seguridad Informática</title>
+    <style>
+        /* =====================================================================
+           1. VARIABLES DE DISEÑO (ESTÉTICA INSTITUCIONAL UNAM)
+           ===================================================================== */
+        :root {
+            --unam-navy: #002B5B;
+            --unam-navy-deep: #001D3D;
+            --unam-navy-soft: #0F3D73;
+            --unam-gold: #C59B27;
+            --unam-gold-bright: #D9B03C;
+            --unam-gold-bg: #FCF8EB;
+            --unam-gold-border: #E8D59C;
+
+            --bg-page: #F4F7FA;
+            --bg-card: #FFFFFF;
+            --bg-subtle: #F8FAFC;
+            --text-main: #1E293B;
+            --text-muted: #475569;
+            --text-light: #64748B;
+            --border-color: #CBD5E1;
+            --border-light: #E2E8F0;
+
+            --success-bg: #ECFDF5;
+            --success-border: #6EE7B7;
+            --success-text: #065F46;
+
+            --error-bg: #FEF2F2;
+            --error-border: #FCA5A5;
+            --error-text: #991B1B;
+
+            --warn-bg: #FFFBEB;
+            --warn-border: #FCD34D;
+            --warn-text: #92400E;
+
+            --tech-bg: #0F172A;
+            --tech-panel: #1E293B;
+            --tech-border: #334155;
+            --tech-text: #E2E8F0;
+            --tech-muted: #94A3B8;
+            --tech-accent: #38BDF8;
+            --tech-green: #34D399;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-pill: 999px;
+            --shadow-sm: 0 2px 6px rgba(0, 43, 91, 0.06);
+            --shadow-md: 0 10px 28px rgba(0, 43, 91, 0.10);
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* =====================================================================
+           2. RESET Y ESTILOS BASE
+           ===================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.55;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .mono {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        /* =====================================================================
+           3. ENCABEZADO Y BANNER DE PRIVACIDAD
+           ===================================================================== */
+        .hero {
+            background: linear-gradient(135deg, var(--unam-navy-deep) 0%, var(--unam-navy) 65%, var(--unam-navy-soft) 100%);
+            color: #FFFFFF;
+            border-bottom: 4px solid var(--unam-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(197, 155, 39, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 1.9rem 1.25rem 1.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem 1.5rem;
+        }
+
+        .hero-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        .hero-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(197, 155, 39, 0.50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--unam-gold-bright);
+        }
+
+        .hero-kicker {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--unam-gold-bright);
+            margin-bottom: 0.25rem;
+        }
+
+        .hero h1 {
+            margin: 0 0 0.25rem;
+            font-size: clamp(1.35rem, 2.8vw, 1.95rem);
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.015em;
+        }
+
+        .hero-subtitle {
+            margin: 0;
+            font-size: clamp(0.88rem, 1.5vw, 1rem);
+            color: #D7E3F1;
+        }
+
+        .privacy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #F1F5F9;
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--radius-pill);
+            font-size: 0.8rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .privacy-badge svg {
+            width: 16px;
+            height: 16px;
+            color: var(--tech-green);
+            flex-shrink: 0;
+        }
+
+        /* =====================================================================
+           4. CONTENEDOR PRINCIPAL Y AVISO DE COMPATIBILIDAD
+           ===================================================================== */
+        .main-wrap {
+            flex: 1;
+            max-width: 1060px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.75rem 1.25rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .compat-banner {
+            display: none;
+            background: var(--warn-bg);
+            border: 1px solid var(--warn-border);
+            border-left: 5px solid #D97706;
+            color: var(--warn-text);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .compat-banner.visible {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+        }
+
+        .compat-banner strong {
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        /* =====================================================================
+           5. TARJETA PRINCIPAL DE OPERACIÓN (FIEL AL BOCETO)
+           ===================================================================== */
+        .lab-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Fila superior: Selector de modo + botón "Buscar..." */
+        .mode-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.85rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mode-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .mode-btn {
+            appearance: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 0.7rem 1.35rem;
+            border-radius: var(--radius-pill);
+            border: 2px solid var(--border-color);
+            background: #FFFFFF;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            transition: all var(--transition);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--unam-navy);
+            color: var(--unam-navy);
+            background: #F1F6FC;
+        }
+
+        .mode-btn.active {
+            background: var(--unam-navy);
+            border-color: var(--unam-navy);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(0, 43, 91, 0.24);
+        }
+
+        .mode-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .browse-btn {
+            appearance: none;
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 700;
+            padding: 0.68rem 1.25rem;
+            border-radius: var(--radius-pill);
+            border: 2px solid var(--unam-gold);
+            background: var(--unam-gold-bg);
+            color: var(--unam-navy);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all var(--transition);
+        }
+
+        .browse-btn:hover {
+            background: var(--unam-gold);
+            color: #FFFFFF;
+            box-shadow: 0 4px 10px rgba(197, 155, 39, 0.28);
+        }
+
+        .browse-btn.hidden {
+            display: none;
+        }
+
+        /* Sección de Clave Secreta Compartida */
+        .key-section {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.2rem;
+        }
+
+        .field-label-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .field-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--unam-navy);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .field-label svg {
+            width: 16px;
+            height: 16px;
+            color: var(--unam-gold);
+        }
+
+        .key-input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: stretch;
+        }
+
+        .key-input-wrap {
+            position: relative;
+            flex: 1 1 260px;
+            display: flex;
+            align-items: center;
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 0.72rem 2.9rem 0.72rem 0.95rem;
+            font-size: 0.98rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background: #FFFFFF;
+            color: var(--text-main);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .key-input:focus {
+            outline: none;
+            border-color: var(--unam-navy);
+            box-shadow: 0 0 0 3px rgba(0, 43, 91, 0.14);
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 6px;
+            appearance: none;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            padding: 0.45rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color var(--transition), background var(--transition);
+        }
+
+        .eye-btn:hover {
+            color: var(--unam-navy);
+            background: #EFF6FF;
+        }
+
+        .gen-key-btn {
+            appearance: none;
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 0.65rem 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: #FFFFFF;
+            color: var(--unam-navy);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+
+        .gen-key-btn:hover {
+            border-color: var(--unam-gold);
+            background: var(--unam-gold-bg);
+        }
+
+        .key-hint {
+            margin: 0.55rem 0 0;
+            font-size: 0.81rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .key-hint svg {
+            width: 15px;
+            height: 15px;
+            color: var(--unam-navy);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Área principal de operación: 2 columnas en escritorio (fiel al boceto) */
+        .operation-grid {
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 1.25rem;
+            align-items: stretch;
+        }
+
+        /* Columna izquierda: Entrada de Mensaje o Archivo */
+        .input-pane {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .pane-panel.hidden {
+            display: none;
+        }
+
+        .clear-link-btn {
+            appearance: none;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            transition: color var(--transition), background var(--transition);
+        }
+
+        .clear-link-btn:hover {
+            color: #B91C1C;
+            background: #FEF2F2;
+        }
+
+        .msg-textarea {
+            width: 100%;
+            min-height: 138px;
+            padding: 0.9rem 1rem;
+            font-family: inherit;
+            font-size: 0.98rem;
+            color: var(--text-main);
+            background: #FFFFFF;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            resize: vertical;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .msg-textarea:focus {
+            outline: none;
+            border-color: var(--unam-navy);
+            box-shadow: 0 0 0 3px rgba(0, 43, 91, 0.14);
+        }
+
+        /* Zona de archivo / Drag & Drop */
+        .dropzone {
+            min-height: 138px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-subtle);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .dropzone:hover,
+        .dropzone.drag-over {
+            border-color: var(--unam-navy);
+            background: #EFF6FF;
+        }
+
+        .dropzone.has-file {
+            border-style: solid;
+            border-color: var(--unam-navy);
+            background: #F8FBFF;
+        }
+
+        .dropzone-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #E8F0FA;
+            color: var(--unam-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .dropzone-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--unam-navy);
+            margin: 0 0 0.2rem;
+            word-break: break-word;
+        }
+
+        .dropzone-sub {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .file-meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-top: 0.65rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: var(--radius-pill);
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Columna derecha: Botones Encriptar / Desencriptar apilados verticalmente */
+        .actions-pane {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.85rem;
+            padding-top: 1.65rem;
+        }
+
+        .action-btn {
+            appearance: none;
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.98rem;
+            font-weight: 800;
+            padding: 0.92rem 1.2rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            transition: all var(--transition);
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-encrypt {
+            background: var(--unam-navy);
+            color: #FFFFFF;
+            border: 2px solid var(--unam-navy);
+            box-shadow: 0 4px 12px rgba(0, 43, 91, 0.22);
+        }
+
+        .btn-encrypt:hover {
+            background: var(--unam-navy-soft);
+            border-color: var(--unam-navy-soft);
+            transform: translateY(-1px);
+        }
+
+        .btn-decrypt {
+            background: #FFFFFF;
+            color: var(--unam-navy);
+            border: 2px solid var(--unam-navy);
+        }
+
+        .btn-decrypt:hover {
+            background: #EFF6FF;
+            transform: translateY(-1px);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =====================================================================
+           6. ÁREA DE RESULTADO (PARTE INFERIOR DE LA TARJETA PRINCIPAL)
+           ===================================================================== */
+        .result-section {
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .result-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .result-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--unam-navy);
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .result-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .mini-btn {
+            appearance: none;
+            font-family: inherit;
+            font-size: 0.81rem;
+            font-weight: 700;
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: #FFFFFF;
+            color: var(--unam-navy);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all var(--transition);
+        }
+
+        .mini-btn:hover {
+            border-color: var(--unam-navy);
+            background: #EFF6FF;
+        }
+
+        .mini-btn.primary {
+            background: var(--unam-navy);
+            color: #FFFFFF;
+            border-color: var(--unam-navy);
+        }
+
+        .mini-btn.primary:hover {
+            background: var(--unam-navy-soft);
+        }
+
+        .mini-btn.copied {
+            background: var(--success-bg);
+            color: var(--success-text);
+            border-color: var(--success-border);
+        }
+
+        .result-box {
+            border-radius: var(--radius-md);
+            padding: 1rem 1.15rem;
+            border: 1px solid var(--border-light);
+            background: var(--bg-subtle);
+            color: var(--text-light);
+            font-size: 0.92rem;
+            min-height: 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .result-box.state-encrypted {
+            background: #F8FAFC;
+            border: 2px solid #CBD5E1;
+            color: var(--unam-navy-deep);
+        }
+
+        .result-box.state-decrypted {
+            background: var(--success-bg);
+            border: 2px solid var(--success-border);
+            color: var(--success-text);
+        }
+
+        .result-box.state-error {
+            background: var(--error-bg);
+            border: 2px solid var(--error-border);
+            color: var(--error-text);
+        }
+
+        .result-hex {
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            max-height: 180px;
+            overflow-y: auto;
+            color: #0F172A;
+            margin: 0;
+        }
+
+        .result-plain {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .result-file-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.65rem;
+            font-weight: 700;
+            font-size: 0.98rem;
+        }
+
+        .result-note {
+            font-size: 0.82rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* =====================================================================
+           7. PANEL EDUCATIVO DUAL (ADMINISTRATIVO vs. RADIOGRAFÍA TI)
+           ===================================================================== */
+        .edu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .edu-card {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tarjeta Administrativa */
+        .edu-admin {
+            background: #FFFFFF;
+            border: 1px solid var(--border-light);
+        }
+
+        .edu-card-head {
+            padding: 1.05rem 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .edu-admin .edu-card-head {
+            background: linear-gradient(135deg, #F0F6FC 0%, #FCF8EB 100%);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .edu-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .edu-admin .edu-icon {
+            background: var(--unam-navy);
+            color: var(--unam-gold-bright);
+        }
+
+        .edu-card-head h2 {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .edu-admin .edu-card-head h2 {
+            color: var(--unam-navy);
+        }
+
+        .edu-card-head p {
+            margin: 0.1rem 0 0;
+            font-size: 0.78rem;
+        }
+
+        .edu-admin .edu-card-head p {
+            color: var(--text-muted);
+        }
+
+        .edu-body {
+            padding: 1.25rem 1.35rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.95rem;
+            font-size: 0.9rem;
+        }
+
+        .tip-box {
+            background: var(--unam-gold-bg);
+            border: 1px solid var(--unam-gold-border);
+            border-left: 4px solid var(--unam-gold);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem 1rem;
+            color: #334155;
+            font-size: 0.86rem;
+        }
+
+        .tip-box strong {
+            color: var(--unam-navy);
+        }
+
+        .admin-list {
+            margin: 0;
+            padding-left: 1.15rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            color: var(--text-muted);
+        }
+
+        .admin-list li strong {
+            color: var(--text-main);
+        }
+
+        /* Tarjeta Técnica (Radiografía TI) */
+        .edu-tech {
+            background: var(--tech-bg);
+            border: 1px solid var(--tech-border);
+            color: var(--tech-text);
+        }
+
+        .edu-tech .edu-card-head {
+            background: #0B1220;
+            border-bottom: 1px solid var(--tech-border);
+        }
+
+        .edu-tech .edu-icon {
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: var(--tech-accent);
+        }
+
+        .edu-tech .edu-card-head h2 {
+            color: #FFFFFF;
+        }
+
+        .edu-tech .edu-card-head p {
+            color: var(--tech-muted);
+        }
+
+        .tech-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+        }
+
+        .metric-item {
+            background: var(--tech-panel);
+            border: 1px solid var(--tech-border);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.75rem;
+            min-width: 0;
+        }
+
+        .metric-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--tech-muted);
+            margin-bottom: 0.2rem;
+        }
+
+        .metric-value {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--tech-accent);
+            word-break: break-all;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-value.green {
+            color: var(--tech-green);
+        }
+
+        .metric-value.gold {
+            color: #FCD34D;
+        }
+
+        .tech-note {
+            background: rgba(30, 41, 59, 0.7);
+            border-left: 3px solid var(--tech-accent);
+            border-radius: 6px;
+            padding: 0.75rem 0.9rem;
+            font-size: 0.81rem;
+            color: #CBD5E1;
+            line-height: 1.5;
+        }
+
+        .tech-note strong {
+            color: #FFFFFF;
+        }
+
+        /* =====================================================================
+           8. PIE DE PÁGINA
+           ===================================================================== */
+        .site-footer {
+            background: var(--unam-navy-deep);
+            color: #CBD5E1;
+            border-top: 3px solid var(--unam-gold);
+            text-align: center;
+            padding: 1.15rem 1rem;
+            font-size: 0.82rem;
+        }
+
+        .site-footer strong {
+            color: var(--unam-gold-bright);
+        }
+
+        /* =====================================================================
+           9. RESPONSIVIDAD
+           ===================================================================== */
+        @media (max-width: 860px) {
+            .operation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-pane {
+                padding-top: 0;
+                flex-direction: row;
+            }
+
+            .edu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .lab-card {
+                padding: 1.25rem;
+            }
+
+            .actions-pane {
+                flex-direction: column;
+            }
+
+            .tech-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-btn, .browse-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .mode-tabs {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =====================================================================
+         ENCABEZADO INSTITUCIONAL Y BADGE DE PRIVACIDAD
+         ===================================================================== -->
+    <header class="hero">
+        <div class="hero-inner">
+            <div class="hero-brand">
+                <div class="hero-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="hero-kicker">UNAM · Taller Prácticas sobre Seguridad Informática</div>
+                    <h1>Laboratorio de Cifrado Simétrico (AES-256)</h1>
+                    <p class="hero-subtitle">Protege mensajes y documentos de forma local para compartirlos de manera segura</p>
+                </div>
+            </div>
+
+            <div class="privacy-badge" title="Tus mensajes, claves y archivos nunca salen de tu computadora">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+                <span>Procesamiento 100% local en tu navegador (Web Crypto API)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         CONTENIDO PRINCIPAL
+         ===================================================================== -->
+    <main class="main-wrap">
+
+        <!-- Aviso de compatibilidad si Web Crypto API está bloqueada -->
+        <div id="compatBanner" class="compat-banner" role="alert">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;" aria-hidden="true">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+                <strong>Web Crypto API no disponible en este contexto</strong>
+                Tu navegador restringe el cifrado nativo cuando la página se abre en una conexión HTTP insegura. Ábrela mediante <strong>HTTPS</strong> (por ejemplo, desde el portal en GitHub Pages) o en <strong>localhost</strong> para habilitar el cifrado AES-256.
+            </div>
+        </div>
+
+        <!-- =================================================================
+             TARJETA PRINCIPAL DE CIFRADO (ESTRUCTURA FIEL AL BOCETO)
+             ================================================================= -->
+        <section class="lab-card" aria-label="Herramienta de cifrado y descifrado AES-256">
+
+            <!-- 1. SELECTOR DE MODO + BOTÓN BUSCAR -->
+            <div class="mode-bar">
+                <div class="mode-tabs" role="tablist" aria-label="Tipo de contenido a procesar">
+                    <button type="button" id="tabMessage" class="mode-btn active" role="tab" aria-selected="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>Mensaje</span>
+                    </button>
+                    <button type="button" id="tabFile" class="mode-btn" role="tab" aria-selected="false">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <span>Archivo/Documento</span>
+                    </button>
+                </div>
+
+                <!-- Botón Buscar... visible solo en modo Archivo/Documento -->
+                <button type="button" id="browseBtn" class="browse-btn hidden">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Buscar...</span>
+                </button>
+                <input type="file" id="fileInput" hidden>
+            </div>
+
+            <!-- 2. CAMPO DE CLAVE SECRETA COMPARTIDA -->
+            <div class="key-section">
+                <div class="field-label-row">
+                    <label for="secretKey" class="field-label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                        </svg>
+                        <span>Clave secreta compartida (Llave)</span>
+                    </label>
+                </div>
+
+                <div class="key-input-row">
+                    <div class="key-input-wrap">
+                        <input
+                            type="password"
+                            id="secretKey"
+                            class="key-input"
+                            placeholder="Escribe la clave acordada con tu compañero..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+                        <button type="button" id="toggleKeyBtn" class="eye-btn" title="Mostrar u ocultar clave" aria-label="Mostrar u ocultar clave">
+                            <svg id="eyeOpenIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg id="eyeClosedIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button type="button" id="generateKeyBtn" class="gen-key-btn" title="Generar una clave aleatoria fácil de compartir">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <polyline points="1 20 1 14 7 14"></polyline>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        <span>Generar clave</span>
+                    </button>
+                </div>
+
+                <p class="key-hint">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>Acuerda esta clave con tu compañero por un canal distinto al que usarás para enviar el mensaje o archivo.</span>
+                </p>
+            </div>
+
+            <!-- 3. ÁREA PRINCIPAL DE OPERACIÓN (2 COLUMNAS EN ESCRITORIO) -->
+            <div class="operation-grid">
+                <!-- Columna izquierda: Entrada -->
+                <div class="input-pane">
+                    <!-- Panel Modo Mensaje -->
+                    <div id="messagePanel" class="pane-panel">
+                        <div class="field-label-row">
+                            <label for="messageInput" class="field-label">Mensaje o texto hexadecimal cifrado</label>
+                            <button type="button" id="clearMessageBtn" class="clear-link-btn">Limpiar</button>
+                        </div>
+                        <textarea
+                            id="messageInput"
+                            class="msg-textarea"
+                            placeholder="Escribe aquí tu mensaje (ej. hola mundo) o pega el texto encriptado en hexadecimal..."
+                            spellcheck="false"
+                        ></textarea>
+                    </div>
+
+                    <!-- Panel Modo Archivo/Documento -->
+                    <div id="filePanel" class="pane-panel hidden">
+                        <div class="field-label-row">
+                            <span class="field-label">Archivo o documento seleccionado</span>
+                            <button type="button" id="clearFileBtn" class="clear-link-btn" style="display:none;">Quitar archivo</button>
+                        </div>
+                        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Seleccionar o arrastrar un archivo">
+                            <div class="dropzone-icon" aria-hidden="true">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <p id="dropzoneTitle" class="dropzone-title">Arrastra tu archivo aquí o haz clic en "Buscar..."</p>
+                            <p id="dropzoneSub" class="dropzone-sub">Compatible con .docx, .pdf, .xlsx, .txt, imágenes y cualquier otro documento</p>
+                            <div id="fileMetaPill" class="file-meta-pill" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Botones apilados verticalmente -->
+                <div class="actions-pane">
+                    <button type="button" id="encryptBtn" class="action-btn btn-encrypt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>Encriptar</span>
+                    </button>
+                    <button type="button" id="decryptBtn" class="action-btn btn-decrypt">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                        </svg>
+                        <span>Desencriptar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. ÁREA DE RESULTADO -->
+            <div class="result-section" aria-live="polite">
+                <div class="result-header">
+                    <h2 class="result-title">Resultado:</h2>
+                    <div id="resultActions" class="result-actions"></div>
+                </div>
+                <div id="resultBox" class="result-box">
+                    <span>Aquí aparecerá el mensaje cifrado/descifrado o el nombre del archivo procesado.</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =================================================================
+             PANEL EDUCATIVO DUAL (ADMINISTRATIVO vs. RADIOGRAFÍA TI)
+             ================================================================= -->
+        <section class="edu-grid" aria-label="Explicación didáctica y radiografía técnica">
+
+            <!-- Tarjeta Izquierda: Para todo el equipo -->
+            <article class="edu-card edu-admin">
+                <div class="edu-card-head">
+                    <div class="edu-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Para todo el equipo (Explicación sencilla)</h2>
+                        <p>¿Cómo funciona el cifrado simétrico en la vida diaria?</p>
+                    </div>
+                </div>
+                <div class="edu-body">
+                    <p style="margin:0;">
+                        El cifrado simétrico funciona como <strong>una caja fuerte con candado y dos llaves idénticas</strong>: tú cierras la caja con la clave secreta compartida y tu compañero usa exactamente la misma clave para abrirla. Si alguien intercepta el mensaje o el archivo en el camino, solo verá datos sin sentido.
+                    </p>
+
+                    <div class="tip-box">
+                        <strong>Tip práctico para comprobarlo en clase:</strong>
+                        Encripta un documento de Word (por ejemplo, <span class="mono">aviso.docx</span>) e intenta abrir <span class="mono">aviso_encriptado.docx</span> directamente en Word. Verás que aparece ilegible o dañado. Después pásalo por <strong>Desencriptar</strong> con la misma clave y comprueba que el archivo se recupera intacto.
+                    </div>
+
+                    <ul class="admin-list">
+                        <li><strong>Regla de oro:</strong> Nunca envíes la clave secreta en el mismo correo o chat donde mandas el mensaje o archivo encriptado; compártela por llamada, mensaje aparte o en persona.</li>
+                        <li><strong>Cuidado con alteraciones:</strong> Si cambias una sola letra del texto hexadecimal cifrado, el sistema lo detectará y rechazará la apertura por seguridad.</li>
+                    </ul>
+                </div>
+            </article>
+
+            <!-- Tarjeta Derecha: Radiografía Técnica (Para equipo de TI) -->
+            <article class="edu-card edu-tech">
+                <div class="edu-card-head">
+                    <div class="edu-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Radiografía Técnica (Para equipo de TI)</h2>
+                        <p>Parámetros criptográficos reales de la última operación</p>
+                    </div>
+                </div>
+                <div class="edu-body">
+                    <div class="tech-metrics">
+                        <div class="metric-item">
+                            <span class="metric-label">Algoritmo</span>
+                            <span class="metric-value mono green">AES-256-GCM</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Derivación de llave</span>
+                            <span class="metric-value mono">PBKDF2-SHA256 (100k iter.)</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Última operación</span>
+                            <span id="techOp" class="metric-value mono gold">Esperando ejecución...</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Tamaño entrada → salida</span>
+                            <span id="techSizes" class="metric-value mono">—</span>
+                        </div>
+                        <div class="metric-item full">
+                            <span class="metric-label">Salt (16 bytes · aleatorio por operación)</span>
+                            <span id="techSalt" class="metric-value mono">—</span>
+                        </div>
+                        <div class="metric-item full">
+                            <span class="metric-label">IV / Nonce (12 bytes · aleatorio por operación)</span>
+                            <span id="techIv" class="metric-value mono">—</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-note">
+                        <strong>Seguridad semántica y Tríada CID:</strong> Si encriptas <span class="mono">"hola mundo"</span> dos veces con la misma clave, obtendrás cadenas hexadecimales totalmente distintas gracias al <strong>Salt</strong> y al <strong>IV aleatorio</strong> (evitando análisis de patrones). Además, <strong>AES-GCM</strong> es cifrado autenticado (AEAD): incluye un <em>Auth Tag</em> de 128 bits que protege tanto la <strong>Confidencialidad</strong> como la <strong>Integridad</strong> (cualquier bit modificado invalida el descifrado).
+                    </div>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- =====================================================================
+         PIE DE PÁGINA
+         ===================================================================== -->
+    <footer class="site-footer">
+        <strong>UNAM</strong> · Taller Prácticas sobre Seguridad Informática · Laboratorio de Cifrado Simétrico AES-256-GCM (Web Crypto API)
+    </footer>
+
+    <!-- =====================================================================
+         LÓGICA CRIPTOGRÁFICA Y DE INTERFAZ (100% JAVASCRIPT NATIVO)
+         ===================================================================== -->
+    <script>
+        (function () {
+            "use strict";
+
+            /* -----------------------------------------------------------------
+               1. CONSTANTES CRIPTOGRÁFICAS
+               Estructura binaria:
+               [4 bytes "AES1"] + [16 bytes Salt] + [12 bytes IV] + [Ciphertext + 16 bytes Tag GCM]
+               ----------------------------------------------------------------- */
+            const MAGIC_BYTES = new Uint8Array([0x41, 0x45, 0x53, 0x31]); // "AES1"
+            const SALT_LEN = 16;
+            const IV_LEN = 12;
+            const TAG_LEN = 16;
+            const HEADER_LEN = MAGIC_BYTES.length + SALT_LEN + IV_LEN; // 32 bytes
+            const MIN_PAYLOAD_LEN = HEADER_LEN + TAG_LEN; // 48 bytes
+            const PBKDF2_ITERATIONS = 100000;
+
+            /* -----------------------------------------------------------------
+               2. ESTADO DE LA APLICACIÓN Y REFERENCIAS AL DOM
+               ----------------------------------------------------------------- */
+            let currentMode = "message"; // "message" | "file"
+            let selectedFile = null;
+            let lastGeneratedHex = "";
+            let lastFileDownload = null; // { blobUrl, filename }
+
+            const compatBanner = document.getElementById("compatBanner");
+            const tabMessage = document.getElementById("tabMessage");
+            const tabFile = document.getElementById("tabFile");
+            const browseBtn = document.getElementById("browseBtn");
+            const fileInput = document.getElementById("fileInput");
+
+            const secretKeyInput = document.getElementById("secretKey");
+            const toggleKeyBtn = document.getElementById("toggleKeyBtn");
+            const eyeOpenIcon = document.getElementById("eyeOpenIcon");
+            const eyeClosedIcon = document.getElementById("eyeClosedIcon");
+            const generateKeyBtn = document.getElementById("generateKeyBtn");
+
+            const messagePanel = document.getElementById("messagePanel");
+            const filePanel = document.getElementById("filePanel");
+            const messageInput = document.getElementById("messageInput");
+            const clearMessageBtn = document.getElementById("clearMessageBtn");
+            const clearFileBtn = document.getElementById("clearFileBtn");
+
+            const dropzone = document.getElementById("dropzone");
+            const dropzoneTitle = document.getElementById("dropzoneTitle");
+            const dropzoneSub = document.getElementById("dropzoneSub");
+            const fileMetaPill = document.getElementById("fileMetaPill");
+
+            const encryptBtn = document.getElementById("encryptBtn");
+            const decryptBtn = document.getElementById("decryptBtn");
+
+            const resultBox = document.getElementById("resultBox");
+            const resultActions = document.getElementById("resultActions");
+
+            const techOp = document.getElementById("techOp");
+            const techSizes = document.getElementById("techSizes");
+            const techSalt = document.getElementById("techSalt");
+            const techIv = document.getElementById("techIv");
+
+            const textEncoder = new TextEncoder();
+            const textDecoder = new TextDecoder("utf-8", { fatal: true });
+
+            /* -----------------------------------------------------------------
+               3. VERIFICACIÓN DE COMPATIBILIDAD WEB CRYPTO API
+               ----------------------------------------------------------------- */
+            const isWebCryptoAvailable = Boolean(window.crypto && window.crypto.subtle);
+            if (!isWebCryptoAvailable) {
+                compatBanner.classList.add("visible");
+                encryptBtn.disabled = true;
+                decryptBtn.disabled = true;
+            }
+
+            /* -----------------------------------------------------------------
+               4. FUNCIONES AUXILIARES (HEX, FORMATO, COPIADO, DESCARGA)
+               ----------------------------------------------------------------- */
+            function bytesToHex(bytes) {
+                let hex = "";
+                for (let i = 0; i < bytes.length; i++) {
+                    hex += bytes[i].toString(16).padStart(2, "0");
+                }
+                return hex;
+            }
+
+            function hexToBytes(hexStr) {
+                const cleaned = hexStr.replace(/\s+/g, "").toLowerCase();
+                if (!cleaned || cleaned.length % 2 !== 0 || !/^[0-9a-f]+$/.test(cleaned)) {
+                    throw new Error("HEX_INVALID");
+                }
+                const bytes = new Uint8Array(cleaned.length / 2);
+                for (let i = 0; i < bytes.length; i++) {
+                    bytes[i] = parseInt(cleaned.substr(i * 2, 2), 16);
+                }
+                return bytes;
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return "0 B";
+                const units = ["B", "KB", "MB", "GB"];
+                const k = 1024;
+                const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), units.length - 1);
+                const val = bytes / Math.pow(k, i);
+                return (i === 0 ? val : val.toFixed(2)) + " " + units[i];
+            }
+
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+            function buildOutputFilename(originalName, action) {
+                const lastDot = originalName.lastIndexOf(".");
+                const hasExt = lastDot > 0;
+                let base = hasExt ? originalName.slice(0, lastDot) : originalName;
+                const ext = hasExt ? originalName.slice(lastDot) : "";
+
+                if (action === "encrypt") {
+                    return base + "_encriptado" + ext;
+                }
+                // Al desencriptar: quitar "_encriptado" si existe al final del nombre base
+                base = base.replace(/_encriptado$/i, "");
+                return base + "_desencriptado" + ext;
+            }
+
+            function triggerDownload(blob, filename) {
+                // Liberar URL anterior si existía
+                if (lastFileDownload && lastFileDownload.blobUrl) {
+                    URL.revokeObjectURL(lastFileDownload.blobUrl);
+                }
+                const blobUrl = URL.createObjectURL(blob);
+                lastFileDownload = { blobUrl, filename };
+
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            function copyToClipboard(text, buttonEl) {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand("copy");
+                    const originalHtml = buttonEl.innerHTML;
+                    buttonEl.classList.add("copied");
+                    buttonEl.innerHTML = "<span>¡Copiado!</span>";
+                    setTimeout(() => {
+                        buttonEl.classList.remove("copied");
+                        buttonEl.innerHTML = originalHtml;
+                    }, 1800);
+                } catch (err) {
+                    showError("No se pudo copiar automáticamente. Selecciona el texto y copia con Ctrl+C.");
+                }
+                document.body.removeChild(textarea);
+            }
+
+            function generateFriendlyKey() {
+                const words = [
+                    "Puma", "Nube", "Faro", "Jade", "Lobo", "Sol", "Tigre",
+                    "Cedro", "Onda", "Brisa", "Cima", "Coral", "Roca", "Vela",
+                    "Roble", "Alba", "Delta", "Lago", "Pino", "Rayo"
+                ];
+                const rand = new Uint32Array(3);
+                if (window.crypto && window.crypto.getRandomValues) {
+                    window.crypto.getRandomValues(rand);
+                } else {
+                    rand[0] = Math.floor(Math.random() * 10000);
+                    rand[1] = Math.floor(Math.random() * 10000);
+                    rand[2] = Math.floor(Math.random() * 10000);
+                }
+                const w1 = words[rand[0] % words.length];
+                const w2 = words[rand[1] % words.length];
+                const num = String(1000 + (rand[2] % 9000));
+                return `${w1}-${w2}-${num}`;
+            }
+
+            /* -----------------------------------------------------------------
+               5. NÚCLEO CRIPTOGRÁFICO: AES-256-GCM + PBKDF2-SHA256
+               ----------------------------------------------------------------- */
+            async function deriveAesKey(password, salt, usage) {
+                const keyMaterial = await window.crypto.subtle.importKey(
+                    "raw",
+                    textEncoder.encode(password),
+                    { name: "PBKDF2" },
+                    false,
+                    ["deriveKey"]
+                );
+
+                return window.crypto.subtle.deriveKey(
+                    {
+                        name: "PBKDF2",
+                        salt: salt,
+                        iterations: PBKDF2_ITERATIONS,
+                        hash: "SHA-256"
+                    },
+                    keyMaterial,
+                    { name: "AES-GCM", length: 256 },
+                    false,
+                    [usage]
+                );
+            }
+
+            async function encryptBytes(plainBytes, password) {
+                const salt = window.crypto.getRandomValues(new Uint8Array(SALT_LEN));
+                const iv = window.crypto.getRandomValues(new Uint8Array(IV_LEN));
+                const aesKey = await deriveAesKey(password, salt, "encrypt");
+
+                const cipherBuffer = await window.crypto.subtle.encrypt(
+                    { name: "AES-GCM", iv: iv },
+                    aesKey,
+                    plainBytes
+                );
+
+                const cipherBytes = new Uint8Array(cipherBuffer);
+                const packed = new Uint8Array(HEADER_LEN + cipherBytes.length);
+                packed.set(MAGIC_BYTES, 0);
+                packed.set(salt, MAGIC_BYTES.length);
+                packed.set(iv, MAGIC_BYTES.length + SALT_LEN);
+                packed.set(cipherBytes, HEADER_LEN);
+
+                return {
+                    packed,
+                    saltHex: bytesToHex(salt),
+                    ivHex: bytesToHex(iv),
+                    inputSize: plainBytes.byteLength,
+                    outputSize: packed.byteLength
+                };
+            }
+
+            async function decryptBytes(packedBytes, password) {
+                if (packedBytes.byteLength < MIN_PAYLOAD_LEN) {
+                    throw new Error("FORMAT_INVALID");
+                }
+
+                // Verificar cabecera mágica "AES1"
+                for (let i = 0; i < MAGIC_BYTES.length; i++) {
+                    if (packedBytes[i] !== MAGIC_BYTES[i]) {
+                        throw new Error("MAGIC_MISMATCH");
+                    }
+                }
+
+                const salt = packedBytes.slice(MAGIC_BYTES.length, MAGIC_BYTES.length + SALT_LEN);
+                const iv = packedBytes.slice(MAGIC_BYTES.length + SALT_LEN, HEADER_LEN);
+                const cipherBytes = packedBytes.slice(HEADER_LEN);
+
+                const aesKey = await deriveAesKey(password, salt, "decrypt");
+
+                try {
+                    const plainBuffer = await window.crypto.subtle.decrypt(
+                        { name: "AES-GCM", iv: iv },
+                        aesKey,
+                        cipherBytes
+                    );
+                    const plainBytes = new Uint8Array(plainBuffer);
+                    return {
+                        plainBytes,
+                        saltHex: bytesToHex(salt),
+                        ivHex: bytesToHex(iv),
+                        inputSize: packedBytes.byteLength,
+                        outputSize: plainBytes.byteLength
+                    };
+                } catch (err) {
+                    throw new Error("AUTH_FAILED");
+                }
+            }
+
+            /* -----------------------------------------------------------------
+               6. ACTUALIZACIÓN DE UI (MODOS, RESULTADOS, RADIOGRAFÍA TI)
+               ----------------------------------------------------------------- */
+            function switchMode(mode) {
+                currentMode = mode;
+                const isMsg = mode === "message";
+
+                tabMessage.classList.toggle("active", isMsg);
+                tabMessage.setAttribute("aria-selected", String(isMsg));
+                tabFile.classList.toggle("active", !isMsg);
+                tabFile.setAttribute("aria-selected", String(!isMsg));
+
+                browseBtn.classList.toggle("hidden", isMsg);
+                messagePanel.classList.toggle("hidden", !isMsg);
+                filePanel.classList.toggle("hidden", isMsg);
+
+                resetResult();
+            }
+
+            function resetResult() {
+                resultBox.className = "result-box";
+                resultBox.innerHTML = "<span>Aquí aparecerá el mensaje cifrado/descifrado o el nombre del archivo procesado.</span>";
+                resultActions.innerHTML = "";
+            }
+
+            function showError(msg) {
+                resultBox.className = "result-box state-error";
+                resultBox.innerHTML = `<p style="margin:0;font-weight:700;">${escapeHtml(msg)}</p>`;
+                resultActions.innerHTML = "";
+            }
+
+            function updateTechPanel(opLabel, info) {
+                techOp.textContent = opLabel;
+                techSizes.textContent = `${formatBytes(info.inputSize)} → ${formatBytes(info.outputSize)}`;
+                techSalt.textContent = info.saltHex;
+                techIv.textContent = info.ivHex;
+            }
+
+            function setSelectedFile(file) {
+                selectedFile = file || null;
+                if (selectedFile) {
+                    dropzone.classList.add("has-file");
+                    dropzoneTitle.textContent = selectedFile.name;
+                    dropzoneSub.textContent = "Archivo listo para encriptar o desencriptar";
+                    fileMetaPill.textContent = `Tamaño: ${formatBytes(selectedFile.size)}`;
+                    fileMetaPill.style.display = "inline-flex";
+                    clearFileBtn.style.display = "inline-block";
+                } else {
+                    dropzone.classList.remove("has-file");
+                    dropzoneTitle.textContent = 'Arrastra tu archivo aquí o haz clic en "Buscar..."';
+                    dropzoneSub.textContent = "Compatible con .docx, .pdf, .xlsx, .txt, imágenes y cualquier otro documento";
+                    fileMetaPill.style.display = "none";
+                    clearFileBtn.style.display = "none";
+                    fileInput.value = "";
+                }
+                resetResult();
+            }
+
+            function setButtonsBusy(busy) {
+                if (!isWebCryptoAvailable) return;
+                encryptBtn.disabled = busy;
+                decryptBtn.disabled = busy;
+            }
+
+            /* -----------------------------------------------------------------
+               7. MANEJADORES PRINCIPALES: ENCRIPTAR Y DESENCRIPTAR
+               ----------------------------------------------------------------- */
+            async function handleEncrypt() {
+                if (!isWebCryptoAvailable) return;
+
+                const password = secretKeyInput.value;
+                if (!password) {
+                    showError("Ingresa una clave secreta compartida antes de encriptar.");
+                    secretKeyInput.focus();
+                    return;
+                }
+
+                if (currentMode === "message") {
+                    const plainText = messageInput.value;
+                    if (!plainText) {
+                        showError("Escribe un mensaje en la caja de texto para poder encriptarlo.");
+                        messageInput.focus();
+                        return;
+                    }
+
+                    setButtonsBusy(true);
+                    try {
+                        const plainBytes = textEncoder.encode(plainText);
+                        const res = await encryptBytes(plainBytes, password);
+                        lastGeneratedHex = bytesToHex(res.packed);
+
+                        resultBox.className = "result-box state-encrypted";
+                        resultBox.innerHTML = `<p class="result-hex mono">${escapeHtml(lastGeneratedHex)}</p>`;
+
+                        resultActions.innerHTML = "";
+                        const copyBtn = document.createElement("button");
+                        copyBtn.type = "button";
+                        copyBtn.className = "mini-btn primary";
+                        copyBtn.innerHTML = "<span>Copiar resultado</span>";
+                        copyBtn.addEventListener("click", () => copyToClipboard(lastGeneratedHex, copyBtn));
+
+                        const testBtn = document.createElement("button");
+                        testBtn.type = "button";
+                        testBtn.className = "mini-btn";
+                        testBtn.innerHTML = "<span>Probar desencriptar</span>";
+                        testBtn.addEventListener("click", () => {
+                            messageInput.value = lastGeneratedHex;
+                            messageInput.focus();
+                            handleDecrypt();
+                        });
+
+                        resultActions.appendChild(copyBtn);
+                        resultActions.appendChild(testBtn);
+
+                        updateTechPanel("Encriptar Mensaje", res);
+                    } catch (err) {
+                        showError("Ocurrió un error al encriptar el mensaje. Inténtalo nuevamente.");
+                    } finally {
+                        setButtonsBusy(false);
+                    }
+                } else {
+                    // Modo Archivo/Documento
+                    if (!selectedFile) {
+                        showError('Selecciona primero un archivo con el botón "Buscar..." o arrástralo al recuadro.');
+                        return;
+                    }
+
+                    setButtonsBusy(true);
+                    try {
+                        const buffer = await selectedFile.arrayBuffer();
+                        const plainBytes = new Uint8Array(buffer);
+                        const res = await encryptBytes(plainBytes, password);
+                        const outName = buildOutputFilename(selectedFile.name, "encrypt");
+                        const blob = new Blob([res.packed], { type: "application/octet-stream" });
+
+                        triggerDownload(blob, outName);
+
+                        resultBox.className = "result-box state-encrypted";
+                        resultBox.innerHTML = `
+                            <div class="result-file-row">
+                                <span class="mono">${escapeHtml(outName)}</span>
+                            </div>
+                            <p class="result-note">Archivo encriptado y descargado correctamente (${formatBytes(res.outputSize)}). Comparte este archivo con tu compañero.</p>
+                        `;
+
+                        resultActions.innerHTML = "";
+                        const dlBtn = document.createElement("button");
+                        dlBtn.type = "button";
+                        dlBtn.className = "mini-btn primary";
+                        dlBtn.textContent = "Descargar nuevamente";
+                        dlBtn.addEventListener("click", () => {
+                            if (lastFileDownload) {
+                                const a = document.createElement("a");
+                                a.href = lastFileDownload.blobUrl;
+                                a.download = lastFileDownload.filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            }
+                        });
+                        resultActions.appendChild(dlBtn);
+
+                        updateTechPanel("Encriptar Archivo", res);
+                    } catch (err) {
+                        showError("No se pudo encriptar el archivo seleccionado.");
+                    } finally {
+                        setButtonsBusy(false);
+                    }
+                }
+            }
+
+            async function handleDecrypt() {
+                if (!isWebCryptoAvailable) return;
+
+                const password = secretKeyInput.value;
+                if (!password) {
+                    showError("Ingresa la clave secreta compartida para poder desencriptar.");
+                    secretKeyInput.focus();
+                    return;
+                }
+
+                if (currentMode === "message") {
+                    const hexInput = messageInput.value.trim();
+                    if (!hexInput) {
+                        showError("Pega el texto encriptado en hexadecimal dentro de la caja de texto.");
+                        messageInput.focus();
+                        return;
+                    }
+
+                    setButtonsBusy(true);
+                    try {
+                        const packedBytes = hexToBytes(hexInput);
+                        const res = await decryptBytes(packedBytes, password);
+                        const plainText = textDecoder.decode(res.plainBytes);
+
+                        resultBox.className = "result-box state-decrypted";
+                        resultBox.innerHTML = `
+                            <p class="result-plain">${escapeHtml(plainText)}</p>
+                            <p class="result-note">Mensaje desencriptado y verificado correctamente (autenticación AES-GCM válida).</p>
+                        `;
+
+                        resultActions.innerHTML = "";
+                        const copyBtn = document.createElement("button");
+                        copyBtn.type = "button";
+                        copyBtn.className = "mini-btn";
+                        copyBtn.innerHTML = "<span>Copiar mensaje</span>";
+                        copyBtn.addEventListener("click", () => copyToClipboard(plainText, copyBtn));
+                        resultActions.appendChild(copyBtn);
+
+                        updateTechPanel("Desencriptar Mensaje", res);
+                    } catch (err) {
+                        if (err.message === "HEX_INVALID" || err.message === "FORMAT_INVALID" || err.message === "MAGIC_MISMATCH") {
+                            showError("El texto ingresado no corresponde a un mensaje encriptado válido por esta herramienta (formato hexadecimal o cabecera AES1 incorrecta).");
+                        } else {
+                            showError("No se pudo desencriptar: la clave secreta no coincide o el texto cifrado fue alterado (fallo de autenticación GCM).");
+                        }
+                    } finally {
+                        setButtonsBusy(false);
+                    }
+                } else {
+                    // Modo Archivo/Documento
+                    if (!selectedFile) {
+                        showError('Selecciona primero el archivo encriptado con "Buscar..." o arrástralo al recuadro.');
+                        return;
+                    }
+
+                    setButtonsBusy(true);
+                    try {
+                        const buffer = await selectedFile.arrayBuffer();
+                        const packedBytes = new Uint8Array(buffer);
+                        const res = await decryptBytes(packedBytes, password);
+                        const outName = buildOutputFilename(selectedFile.name, "decrypt");
+                        const blob = new Blob([res.plainBytes], { type: "application/octet-stream" });
+
+                        triggerDownload(blob, outName);
+
+                        resultBox.className = "result-box state-decrypted";
+                        resultBox.innerHTML = `
+                            <div class="result-file-row">
+                                <span class="mono">${escapeHtml(outName)}</span>
+                            </div>
+                            <p class="result-note">Archivo desencriptado y verificado correctamente (${formatBytes(res.outputSize)}). Ya puedes abrirlo con su programa habitual.</p>
+                        `;
+
+                        resultActions.innerHTML = "";
+                        const dlBtn = document.createElement("button");
+                        dlBtn.type = "button";
+                        dlBtn.className = "mini-btn primary";
+                        dlBtn.textContent = "Descargar nuevamente";
+                        dlBtn.addEventListener("click", () => {
+                            if (lastFileDownload) {
+                                const a = document.createElement("a");
+                                a.href = lastFileDownload.blobUrl;
+                                a.download = lastFileDownload.filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            }
+                        });
+                        resultActions.appendChild(dlBtn);
+
+                        updateTechPanel("Desencriptar Archivo", res);
+                    } catch (err) {
+                        if (err.message === "FORMAT_INVALID" || err.message === "MAGIC_MISMATCH") {
+                            showError("El archivo seleccionado no tiene el formato cifrado AES1 de esta herramienta. Verifica que hayas elegido el archivo \"_encriptado\".");
+                        } else {
+                            showError("No se pudo desencriptar el archivo: la clave secreta no coincide o el archivo fue modificado (fallo de autenticación GCM).");
+                        }
+                    } finally {
+                        setButtonsBusy(false);
+                    }
+                }
+            }
+
+            /* -----------------------------------------------------------------
+               8. EVENT LISTENERS DE LA INTERFAZ
+               ----------------------------------------------------------------- */
+            tabMessage.addEventListener("click", () => switchMode("message"));
+            tabFile.addEventListener("click", () => switchMode("file"));
+
+            browseBtn.addEventListener("click", () => fileInput.click());
+            dropzone.addEventListener("click", () => fileInput.click());
+            dropzone.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+
+            fileInput.addEventListener("change", (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    setSelectedFile(e.target.files[0]);
+                }
+            });
+
+            // Eventos Drag & Drop
+            ["dragenter", "dragover"].forEach(evtName => {
+                dropzone.addEventListener(evtName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.add("drag-over");
+                });
+            });
+
+            ["dragleave", "drop"].forEach(evtName => {
+                dropzone.addEventListener(evtName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropzone.classList.remove("drag-over");
+                });
+            });
+
+            dropzone.addEventListener("drop", (e) => {
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    setSelectedFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            // Mostrar / ocultar clave
+            toggleKeyBtn.addEventListener("click", () => {
+                const isPwd = secretKeyInput.type === "password";
+                secretKeyInput.type = isPwd ? "text" : "password";
+                eyeOpenIcon.style.display = isPwd ? "none" : "block";
+                eyeClosedIcon.style.display = isPwd ? "block" : "none";
+            });
+
+            // Generar clave amigable y mostrarla
+            generateKeyBtn.addEventListener("click", () => {
+                secretKeyInput.value = generateFriendlyKey();
+                secretKeyInput.type = "text";
+                eyeOpenIcon.style.display = "none";
+                eyeClosedIcon.style.display = "block";
+            });
+
+            clearMessageBtn.addEventListener("click", () => {
+                messageInput.value = "";
+                messageInput.focus();
+                resetResult();
+            });
+
+            clearFileBtn.addEventListener("click", () => setSelectedFile(null));
+
+            encryptBtn.addEventListener("click", handleEncrypt);
+            decryptBtn.addEventListener("click", handleDecrypt);
+        })();
+    </script>
+</body>
+</html>
