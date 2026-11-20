@@ -7,18 +7,18 @@
     <meta name="description" content="Portal de material didáctico interactivo e infografías de apoyo del Taller Prácticas sobre Seguridad Informática (UNAM, Clave PAC236).">
     <style>
         /* =====================================================================
-           VARIABLES DE DISEÑO (PALETA INSTITUCIONAL UNAM)
+           1. VARIABLES DE DISEÑO (PALETA INSTITUCIONAL UNAM)
            ===================================================================== */
         :root {
             --unam-navy: #002B5C;
-            --unam-navy-deep: #0B2545;
-            --unam-blue-soft: #143D6D;
-            --unam-gold: #C59B27;
-            --unam-gold-bright: #D4AF37;
-            --unam-gold-bg: #FCF8EB;
-            --unam-gold-border: #EAD9A1;
+            --unam-blue: #0B3D91;
+            --unam-navy-dark: #001D3D;
+            --unam-gold: #D4AF37;
+            --unam-gold-dark: #B8860B;
+            --unam-gold-soft: #FCF8EB;
+            --unam-gold-border: #E8D59C;
 
-            --bg-page: #F4F7FA;
+            --bg-page: #F4F6FA;
             --bg-card: #FFFFFF;
             --text-main: #1E293B;
             --text-muted: #475569;
@@ -26,29 +26,34 @@
             --border-subtle: #E2E8F0;
             --border-hover: #CBD5E1;
 
-            /* Colores semánticos por tipo de recurso */
-            --badge-practica-bg: #E8F0FA;
+            /* Colores semánticos de insignias */
+            --badge-practica-bg: #EAF1FC;
             --badge-practica-text: #002B5C;
-            --badge-practica-border: #BDD3F0;
+            --badge-practica-border: #C2D6F5;
 
             --badge-infoint-bg: #FCF6E3;
-            --badge-infoint-text: #856404;
+            --badge-infoint-text: #8A6406;
             --badge-infoint-border: #E8D28C;
 
             --badge-info-bg: #ECFDF5;
             --badge-info-text: #065F46;
             --badge-info-border: #A7F3D0;
 
+            --badge-nuevo-bg: #FEF3C7;
+            --badge-nuevo-text: #92400E;
+            --badge-nuevo-border: #F59E0B;
+
             --radius-sm: 8px;
             --radius-md: 14px;
             --radius-lg: 18px;
-            --shadow-sm: 0 2px 6px rgba(11, 37, 69, 0.05);
-            --shadow-md: 0 10px 24px rgba(11, 37, 69, 0.09);
+            --radius-pill: 999px;
+            --shadow-sm: 0 2px 8px rgba(0, 43, 92, 0.05);
+            --shadow-md: 0 12px 28px rgba(0, 43, 92, 0.11);
             --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* =====================================================================
-           RESET Y TIPOGRAFÍA BASE
+           2. RESET Y TIPOGRAFÍA BASE
            ===================================================================== */
         *, *::before, *::after {
             box-sizing: border-box;
@@ -65,10 +70,10 @@
             background-color: var(--bg-page);
             color: var(--text-main);
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
         a {
@@ -77,94 +82,122 @@
         }
 
         /* =====================================================================
-           ENCABEZADO INSTITUCIONAL (HERO)
+           3. ENCABEZADO INSTITUCIONAL (HERO)
            ===================================================================== */
         .hero {
-            background: linear-gradient(135deg, var(--unam-navy-deep) 0%, var(--unam-navy) 60%, var(--unam-blue-soft) 100%);
+            background: linear-gradient(135deg, var(--unam-navy-dark) 0%, var(--unam-navy) 55%, var(--unam-blue) 100%);
             color: #FFFFFF;
             border-bottom: 4px solid var(--unam-gold);
             position: relative;
             overflow: hidden;
         }
 
-        /* Patrón geométrico muy sutil de fondo */
         .hero::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(rgba(212, 175, 55, 0.14) 1px, transparent 1px);
-            background-size: 26px 26px;
+            background-image: radial-gradient(rgba(212, 175, 55, 0.16) 1px, transparent 1px);
+            background-size: 24px 24px;
             pointer-events: none;
         }
 
         .hero-inner {
             position: relative;
-            max-width: 1140px;
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 2.75rem 1.25rem 2.5rem;
+            padding: 2.5rem 1.25rem 2.35rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .hero-copy {
+            flex: 1 1 560px;
         }
 
         .hero-kicker {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
+            gap: 0.45rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--unam-gold-bright);
-            margin-bottom: 0.75rem;
+            letter-spacing: 0.08em;
+            color: var(--unam-gold);
+            margin-bottom: 0.65rem;
         }
 
         .hero h1 {
-            margin: 0 0 0.5rem;
-            font-size: clamp(1.75rem, 3.6vw, 2.55rem);
+            margin: 0 0 0.55rem;
+            font-size: clamp(1.7rem, 3.4vw, 2.45rem);
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.18;
             letter-spacing: -0.02em;
         }
 
         .hero-subtitle {
-            margin: 0 0 1.5rem;
-            font-size: clamp(1rem, 1.8vw, 1.15rem);
-            color: #D8E4F2;
-            max-width: 680px;
+            margin: 0;
+            font-size: clamp(0.94rem, 1.6vw, 1.06rem);
+            color: #DDE8F8;
             font-weight: 400;
         }
 
-        .hero-pills {
+        /* Resumen visual rápido del total de recursos */
+        .hero-summary {
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(212, 175, 55, 0.42);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            backdrop-filter: blur(6px);
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.65rem;
-        }
-
-        .meta-pill {
-            display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            font-size: 0.86rem;
-            color: #F8FAFC;
-            backdrop-filter: blur(4px);
-        }
-
-        .meta-pill strong {
-            color: var(--unam-gold-bright);
-            font-weight: 700;
-        }
-
-        .meta-pill svg {
-            width: 15px;
-            height: 15px;
-            color: var(--unam-gold-bright);
+            gap: 1rem;
             flex-shrink: 0;
         }
 
+        .summary-total {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-right: 1rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 78px;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--unam-gold);
+        }
+
+        .summary-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #E2ECF9;
+            margin-top: 0.25rem;
+        }
+
+        .summary-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            font-size: 0.8rem;
+            color: #E2ECF9;
+        }
+
+        .summary-breakdown strong {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
         /* =====================================================================
-           BARRA SUPERIOR DE NAVEGACIÓN RÁPIDA Y FILTROS
+           4. BARRA DE FILTROS Y NAVEGACIÓN RÁPIDA (STICKY)
            ===================================================================== */
         .controls-bar {
             position: sticky;
@@ -173,11 +206,11 @@
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border-subtle);
-            box-shadow: 0 4px 12px rgba(11, 37, 69, 0.04);
+            box-shadow: 0 4px 14px rgba(0, 43, 92, 0.05);
         }
 
         .controls-inner {
-            max-width: 1140px;
+            max-width: 1120px;
             margin: 0 auto;
             padding: 0.85rem 1.25rem;
             display: flex;
@@ -202,36 +235,36 @@
             font-family: inherit;
             font-size: 0.84rem;
             font-weight: 600;
-            padding: 0.5rem 0.85rem;
-            border-radius: 999px;
+            padding: 0.5rem 0.88rem;
+            border-radius: var(--radius-pill);
             cursor: pointer;
             transition: all var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.42rem;
         }
 
         .filter-btn:hover {
-            border-color: var(--unam-navy);
+            border-color: var(--unam-blue);
             color: var(--unam-navy);
-            background: #EEF4FB;
+            background: #EEF4FD;
         }
 
         .filter-btn.active {
             background: var(--unam-navy);
             border-color: var(--unam-navy);
             color: #FFFFFF;
-            box-shadow: 0 2px 8px rgba(0, 43, 92, 0.22);
+            box-shadow: 0 3px 10px rgba(0, 43, 92, 0.22);
         }
 
         .filter-count {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 20px;
-            height: 20px;
-            padding: 0 0.35rem;
-            border-radius: 999px;
+            min-width: 21px;
+            height: 21px;
+            padding: 0 0.38rem;
+            border-radius: var(--radius-pill);
             font-size: 0.74rem;
             font-weight: 700;
             background: rgba(15, 23, 42, 0.08);
@@ -239,7 +272,7 @@
         }
 
         .filter-btn.active .filter-count {
-            background: rgba(212, 175, 55, 0.26);
+            background: rgba(212, 175, 55, 0.28);
             color: #FFF7D6;
         }
 
@@ -251,38 +284,41 @@
         }
 
         .quick-nav-label {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             color: var(--text-light);
-            margin-right: 0.25rem;
+            margin-right: 0.2rem;
         }
 
         .quick-link {
             font-size: 0.83rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--unam-navy);
-            padding: 0.38rem 0.7rem;
+            padding: 0.4rem 0.72rem;
             border-radius: var(--radius-sm);
-            transition: background var(--transition), opacity var(--transition);
+            border: 1px solid transparent;
+            transition: all var(--transition);
         }
 
         .quick-link:hover {
-            background: #E8F0FA;
+            background: #EAF1FC;
+            border-color: var(--badge-practica-border);
         }
 
+        /* Estado atenuado cuando el tema no tiene tarjetas en el filtro activo */
         .quick-link.is-dimmed {
-            opacity: 0.38;
+            opacity: 0.34;
             pointer-events: none;
         }
 
         /* =====================================================================
-           CONTENIDO PRINCIPAL Y SECCIONES DE TEMAS
+           5. CONTENIDO PRINCIPAL Y SECCIONES DE TEMAS
            ===================================================================== */
         .main-content {
             flex: 1;
-            max-width: 1140px;
+            max-width: 1120px;
             width: 100%;
             margin: 0 auto;
             padding: 2.25rem 1.25rem 3.5rem;
@@ -308,20 +344,19 @@
             justify-content: space-between;
             gap: 0.75rem 1rem;
             padding-bottom: 0.9rem;
-            margin-bottom: 1.35rem;
+            margin-bottom: 1.4rem;
             border-bottom: 2px solid var(--border-subtle);
             position: relative;
         }
 
-        /* Acento dorado institucional en la línea inferior del encabezado del tema */
         .topic-header::after {
             content: "";
             position: absolute;
             left: 0;
             bottom: -2px;
-            width: 72px;
+            width: 76px;
             height: 3px;
-            background: var(--unam-gold);
+            background: linear-gradient(90deg, var(--unam-gold-dark), var(--unam-gold));
             border-radius: 3px;
         }
 
@@ -335,64 +370,64 @@
             width: 38px;
             height: 38px;
             border-radius: 10px;
-            background: var(--unam-navy);
-            color: var(--unam-gold-bright);
+            background: linear-gradient(135deg, var(--unam-navy), var(--unam-blue));
+            color: var(--unam-gold);
             font-weight: 800;
             font-size: 1.05rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 3px 8px rgba(0, 43, 92, 0.18);
+            box-shadow: 0 3px 8px rgba(0, 43, 92, 0.2);
         }
 
         .topic-title {
             margin: 0;
-            font-size: clamp(1.2rem, 2.2vw, 1.48rem);
+            font-size: clamp(1.18rem, 2.2vw, 1.46rem);
             font-weight: 800;
-            color: var(--unam-navy-deep);
+            color: var(--unam-navy);
             line-height: 1.25;
         }
 
         .session-tag {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.42rem;
             font-size: 0.8rem;
             font-weight: 700;
             color: var(--unam-navy);
             background: #FFFFFF;
             border: 1px solid var(--border-subtle);
-            padding: 0.35rem 0.78rem;
-            border-radius: 999px;
+            padding: 0.36rem 0.82rem;
+            border-radius: var(--radius-pill);
             box-shadow: var(--shadow-sm);
         }
 
         .session-tag svg {
             width: 14px;
             height: 14px;
-            color: var(--unam-gold);
+            color: var(--unam-gold-dark);
+            flex-shrink: 0;
         }
 
         /* =====================================================================
-           CUADRÍCULA Y TARJETAS DE RECURSOS
+           6. GRID DE 2 COLUMNAS EN ESCRITORIO Y TARJETAS DE RECURSOS
            ===================================================================== */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.35rem;
         }
 
         .resource-card {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-md);
-            padding: 1.35rem 1.4rem;
+            padding: 1.4rem 1.45rem;
             box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
             transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-            position: relative;
         }
 
         .resource-card:hover {
@@ -407,10 +442,18 @@
 
         .card-top {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
             margin-bottom: 0.85rem;
+        }
+
+        .badge-group {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
         }
 
         .badge {
@@ -419,8 +462,8 @@
             gap: 0.38rem;
             font-size: 0.75rem;
             font-weight: 700;
-            padding: 0.28rem 0.7rem;
-            border-radius: 999px;
+            padding: 0.28rem 0.72rem;
+            border-radius: var(--radius-pill);
             border: 1px solid transparent;
             letter-spacing: 0.01em;
         }
@@ -449,40 +492,47 @@
             border-color: var(--badge-info-border);
         }
 
+        .badge-nuevo {
+            background: var(--badge-nuevo-bg);
+            color: var(--badge-nuevo-text);
+            border-color: var(--badge-nuevo-border);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.24rem 0.58rem;
+        }
+
         .card-title {
             margin: 0 0 0.6rem;
             font-size: 1.08rem;
             font-weight: 700;
-            color: var(--unam-navy-deep);
+            color: var(--unam-navy);
             line-height: 1.35;
         }
 
         .card-desc {
-            margin: 0 0 1rem;
+            margin: 0 0 1.05rem;
             font-size: 0.92rem;
             color: var(--text-muted);
             line-height: 1.58;
             flex: 1;
         }
 
-        /* Bloque destacado para la nota legal CADIDO / LGPDPPSO */
-        .callout-note {
-            background: var(--unam-gold-bg);
+        /* Bloque destacado interno con borde izquierdo dorado */
+        .callout-gold {
+            background: var(--unam-gold-soft);
             border: 1px solid var(--unam-gold-border);
-            border-left: 4px solid var(--unam-gold);
+            border-left: 4px solid var(--unam-gold-dark);
             border-radius: var(--radius-sm);
-            padding: 0.75rem 0.9rem;
-            margin: -0.25rem 0 1.1rem;
+            padding: 0.8rem 0.95rem;
+            margin: -0.25rem 0 1.15rem;
             font-size: 0.85rem;
             color: #334155;
-            line-height: 1.5;
+            line-height: 1.52;
         }
 
-        .callout-note strong {
-            display: block;
+        .callout-gold strong {
             color: var(--unam-navy);
-            font-size: 0.86rem;
-            margin-bottom: 0.2rem;
         }
 
         .card-footer {
@@ -500,9 +550,9 @@
             gap: 0.45rem;
             font-size: 0.88rem;
             font-weight: 700;
-            padding: 0.55rem 1rem;
+            padding: 0.56rem 1.05rem;
             border-radius: var(--radius-sm);
-            transition: background var(--transition), color var(--transition), transform var(--transition);
+            transition: background var(--transition), color var(--transition), border-color var(--transition);
         }
 
         .card-action svg {
@@ -521,7 +571,7 @@
         }
 
         .action-primary:hover {
-            background: var(--unam-blue-soft);
+            background: var(--unam-blue);
         }
 
         .action-secondary {
@@ -531,58 +581,48 @@
         }
 
         .action-secondary:hover {
-            background: #E8F0FA;
+            background: #EAF1FC;
             border-color: var(--badge-practica-border);
         }
 
         /* =====================================================================
-           PIE DE PÁGINA SOBRIO
+           7. PIE DE PÁGINA INSTITUCIONAL
            ===================================================================== */
         .site-footer {
-            background: var(--unam-navy-deep);
+            background: var(--unam-navy-dark);
             color: #CBD5E1;
             border-top: 3px solid var(--unam-gold);
-            padding: 1.75rem 1.25rem;
-            font-size: 0.86rem;
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            font-size: 0.85rem;
         }
 
-        .footer-inner {
-            max-width: 1140px;
-            margin: 0 auto;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem 1.5rem;
-        }
-
-        .footer-brand {
-            color: #FFFFFF;
-            font-weight: 700;
-            margin: 0 0 0.2rem;
-        }
-
-        .footer-meta {
+        .site-footer p {
             margin: 0;
-            color: #94A3B8;
-            font-size: 0.82rem;
+            max-width: 1120px;
+            margin-inline: auto;
+            line-height: 1.5;
         }
 
-        .footer-right {
-            color: #CBD5E1;
-            font-size: 0.83rem;
-        }
-
-        .footer-right strong {
-            color: var(--unam-gold-bright);
+        .site-footer strong {
+            color: var(--unam-gold);
         }
 
         /* =====================================================================
-           RESPONSIVIDAD MÓVIL
+           8. RESPONSIVIDAD (1 COLUMNA EN MÓVIL)
            ===================================================================== */
-        @media (max-width: 720px) {
+        @media (max-width: 780px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
             .hero-inner {
-                padding: 2rem 1rem 1.85rem;
+                padding: 1.9rem 1rem 1.75rem;
+            }
+
+            .hero-summary {
+                width: 100%;
+                justify-content: flex-start;
             }
 
             .controls-bar {
@@ -596,15 +636,11 @@
             }
 
             .main-content {
-                padding: 1.6rem 1rem 2.75rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
+                padding: 1.65rem 1rem 2.75rem;
             }
 
             .topic-section {
-                scroll-margin-top: 20px;
+                scroll-margin-top: 18px;
             }
 
             .card-action {
@@ -621,41 +657,29 @@
          ===================================================================== -->
     <header class="hero">
         <div class="hero-inner">
-            <div class="hero-kicker">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    <path d="m9 12 2 2 4-4"/>
-                </svg>
-                <span>Universidad Nacional Autónoma de México · Capacitación</span>
+            <div class="hero-copy">
+                <div class="hero-kicker">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                    <span>Universidad Nacional Autónoma de México · Portal de Prácticas</span>
+                </div>
+                <h1>Taller Prácticas sobre Seguridad Informática</h1>
+                <p class="hero-subtitle">Clave PAC236 · 23 al 27 de noviembre de 2026 · Mtro. Carlos Alberto Román Zamitiz</p>
             </div>
-            <h1>Taller Prácticas sobre Seguridad Informática</h1>
-            <p class="hero-subtitle">Material didáctico interactivo e infografías de apoyo</p>
 
-            <div class="hero-pills" aria-label="Información general del curso">
-                <span class="meta-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="3" y="4" width="18" height="16" rx="2"/>
-                        <line x1="7" y1="8" x2="17" y2="8"/>
-                        <line x1="7" y1="12" x2="13" y2="12"/>
-                    </svg>
-                    <span>Clave: <strong>PAC236</strong></span>
-                </span>
-                <span class="meta-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span>Instructor: <strong>Mtro. Carlos Alberto Román Zamitiz</strong></span>
-                </span>
-                <span class="meta-pill">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                    <span><strong>23–27 de noviembre de 2026</strong></span>
-                </span>
+            <!-- Resumen visual rápido del total de recursos -->
+            <div class="hero-summary" aria-label="Resumen de recursos disponibles">
+                <div class="summary-total">
+                    <span class="summary-number">12</span>
+                    <span class="summary-label">Recursos</span>
+                </div>
+                <div class="summary-breakdown">
+                    <span><strong>6</strong> Prácticas interactivas</span>
+                    <span><strong>2</strong> Infografías interactivas</span>
+                    <span><strong>4</strong> Infografías de apoyo</span>
+                </div>
             </div>
         </div>
     </header>
@@ -663,30 +687,30 @@
     <!-- =====================================================================
          BARRA DE FILTROS INTERACTIVOS Y NAVEGACIÓN RÁPIDA
          ===================================================================== -->
-    <nav class="controls-bar" aria-label="Filtros de recursos y navegación por temas">
+    <nav class="controls-bar" aria-label="Filtros de recursos y navegación rápida por temas">
         <div class="controls-inner">
-            <!-- Filtros por tipo de recurso -->
-            <div class="filter-group" role="group" aria-label="Filtrar por tipo de recurso">
+            <!-- Filtros interactivos con contadores -->
+            <div class="filter-group" role="group" aria-label="Filtrar recursos por tipo">
                 <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">
                     <span>Todos</span>
-                    <span class="filter-count" id="count-all">11</span>
+                    <span class="filter-count" id="count-all">12</span>
                 </button>
                 <button type="button" class="filter-btn" data-filter="practica" aria-pressed="false">
                     <span>Prácticas interactivas</span>
-                    <span class="filter-count" id="count-practica">0</span>
+                    <span class="filter-count" id="count-practica">6</span>
                 </button>
                 <button type="button" class="filter-btn" data-filter="infografia-interactiva" aria-pressed="false">
                     <span>Infografías interactivas</span>
-                    <span class="filter-count" id="count-infografia-interactiva">0</span>
+                    <span class="filter-count" id="count-infografia-interactiva">2</span>
                 </button>
                 <button type="button" class="filter-btn" data-filter="infografia" aria-pressed="false">
                     <span>Infografías</span>
-                    <span class="filter-count" id="count-infografia">0</span>
+                    <span class="filter-count" id="count-infografia">4</span>
                 </button>
             </div>
 
-            <!-- Anclas rápidas a cada tema -->
-            <div class="quick-nav" aria-label="Ir directamente a un tema">
+            <!-- Navegación rápida hacia los 4 temas -->
+            <div class="quick-nav" aria-label="Navegación rápida a temas">
                 <span class="quick-nav-label">Ir a:</span>
                 <a class="quick-link" href="#tema-1" data-nav-target="tema-1">Tema 1</a>
                 <a class="quick-link" href="#tema-2" data-nav-target="tema-2">Tema 2</a>
@@ -697,7 +721,7 @@
     </nav>
 
     <!-- =====================================================================
-         CONTENIDO PRINCIPAL: 4 TEMAS DEL TALLER
+         CONTENIDO PRINCIPAL: 4 TEMAS Y 12 TARJETAS
          ===================================================================== -->
     <main class="main-content">
 
@@ -712,27 +736,31 @@
                 </div>
                 <span class="session-tag">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Sesión 1 · Lunes 23 nov
+                    Sesión 1 · Lunes 23 de noviembre
                 </span>
             </div>
 
             <div class="cards-grid">
-                <!-- Tarjeta 1.1 -->
+                <!-- Tarjeta 1 -->
                 <article class="resource-card" data-type="practica">
                     <div class="card-top">
-                        <span class="badge badge-practica">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                            Práctica interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">Clasificación y Protección de Datos Personales en la UNAM</h3>
                     <p class="card-desc">
-                        Clasifica ejemplos reales de Datos Personales (generales y sensibles) e identifica las Medidas de Seguridad Técnicas (MST) para protegerlos.
+                        Clasifica ejemplos reales de datos personales y determina las Medidas de Seguridad Técnicas (MST) adecuadas para protegerlos en el entorno universitario.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-primary" href="./clasificador_datos_personales_UNAM.html" target="_blank" rel="noopener noreferrer">
@@ -745,25 +773,26 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 1.2 -->
+                <!-- Tarjeta 2 -->
                 <article class="resource-card" data-type="infografia">
                     <div class="card-top">
-                        <span class="badge badge-infografia">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                            Infografía
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Infografía
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="card-title">Retención de Datos Personales en México</h3>
+                    <h3 class="card-title">Infografía: Retención de Datos Personales en México</h3>
                     <p class="card-desc">
-                        De acuerdo con la LGPDPPSO (Art. 3, Fracc. IV), el bloqueo es la identificación y conservación de los datos personales una vez cumplida su finalidad para determinar posibles responsabilidades (legales, fiscales o administrativas).
+                        De acuerdo con la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados (LGPDPPSO, Artículo 3, Fracción IV), el bloqueo es la identificación y conservación de los datos personales una vez cumplida la finalidad para la cual fueron recabados, con el único propósito de determinar posibles responsabilidades (legales, fiscales o administrativas).
                     </p>
-                    <div class="callout-note">
-                        <strong>¿Por cuánto tiempo deben conservarse?</strong>
-                        El plazo exacto está dictado por el Catálogo de Disposición Documental (CADIDO) de la institución, como el CADIDO de la UNAM alineado a la Ley General de Archivos.
+                    <div class="callout-gold">
+                        <strong>¿Por cuánto tiempo deben conservarse?</strong> No existe un número único. El plazo exacto está dictado por el Catálogo de Disposición Documental (CADIDO) de la institución, como el CADIDO de la UNAM, alineado con la Ley General de Archivos.
                     </div>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./Retencion_de_Datos_Personales_en_Mexico.png" target="_blank" rel="noopener noreferrer">
@@ -776,21 +805,23 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 1.3 -->
+                <!-- Tarjeta 3 -->
                 <article class="resource-card" data-type="infografia">
                     <div class="card-top">
-                        <span class="badge badge-infografia">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                            Infografía
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Infografía
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="card-title">Fuga de datos personales en la UNAM</h3>
+                    <h3 class="card-title">Infografía: Fuga de datos personales en la UNAM</h3>
                     <p class="card-desc">
-                        Muestra cómo escala una sanción por fuga de datos personales y en qué consiste la multa aplicable.
+                        Muestra cómo escala una sanción ante una vulneración o fuga de datos personales y en qué consisten las medidas y multas aplicables.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./Fuga_de_datos_personales_en_la_UNAM.jpg" target="_blank" rel="noopener noreferrer">
@@ -803,21 +834,23 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 1.4 -->
+                <!-- Tarjeta 4 -->
                 <article class="resource-card" data-type="infografia">
                     <div class="card-top">
-                        <span class="badge badge-infografia">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                            Infografía
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Infografía
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="card-title">Medidas de Seguridad de la Información</h3>
+                    <h3 class="card-title">Infografía: Medidas de Seguridad de la Información</h3>
                     <p class="card-desc">
-                        Presenta los tres tipos fundamentales de controles o salvaguardas: medidas administrativas, técnicas y físicas.
+                        Resume los tres tipos fundamentales de controles o salvaguardas (administrativas, técnicas y físicas) para proteger la información.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./Medidas_de_Seguridad_de_la_Informacion.png" target="_blank" rel="noopener noreferrer">
@@ -843,27 +876,31 @@
                 </div>
                 <span class="session-tag">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Sesión 2 · Martes 24 nov
+                    Sesión 2 · Martes 24 de noviembre
                 </span>
             </div>
 
             <div class="cards-grid">
-                <!-- Tarjeta 2.1 -->
+                <!-- Tarjeta 5 -->
                 <article class="resource-card" data-type="practica">
                     <div class="card-top">
-                        <span class="badge badge-practica">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                            Práctica interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">Explorador de Conceptos de Seguridad Informática</h3>
                     <p class="card-desc">
-                        Explora los conceptos clave de Seguridad Informática (activos, amenazas, vulnerabilidades y ataques) con perspectiva administrativa y técnica.
+                        Explora de forma interactiva los fundamentos clave: seguridad informática, tríada CIA, activos, amenazas, vulnerabilidades, ataques y atacantes.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-primary" href="./explorador_de_conceptos_de_seguridad.html" target="_blank" rel="noopener noreferrer">
@@ -876,21 +913,23 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 2.2 -->
+                <!-- Tarjeta 6 -->
                 <article class="resource-card" data-type="infografia">
                     <div class="card-top">
-                        <span class="badge badge-infografia">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                                <circle cx="8.5" cy="8.5" r="1.5"/>
-                                <polyline points="21 15 16 10 5 21"/>
-                            </svg>
-                            Infografía
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                Infografía
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="card-title">Los 4 tipos de ataques a los sistemas informáticos</h3>
+                    <h3 class="card-title">Infografía: Los 4 tipos de ataques a los sistemas informáticos</h3>
                     <p class="card-desc">
-                        Ilustra las cuatro categorías clásicas de ataques a los sistemas informáticos.
+                        Ilustra los cuatro tipos principales de ataques contra los sistemas informáticos y cómo afectan el flujo de la información.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./ataques_sistemas_informaticos.png" target="_blank" rel="noopener noreferrer">
@@ -916,28 +955,32 @@
                 </div>
                 <span class="session-tag">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Sesión 3 · Miércoles 25 nov
+                    Sesión 3 · Miércoles 25 de noviembre
                 </span>
             </div>
 
             <div class="cards-grid">
-                <!-- Tarjeta 3.1 -->
+                <!-- Tarjeta 7 -->
                 <article class="resource-card" data-type="infografia-interactiva">
                     <div class="card-top">
-                        <span class="badge badge-infografia-interactiva">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                            </svg>
-                            Infografía interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia-interactiva">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                Infografía interactiva
+                            </span>
+                        </div>
                     </div>
-                    <h3 class="card-title">4 Ciberataques clave</h3>
+                    <h3 class="card-title">Infografía: 4 Ciberataques clave</h3>
                     <p class="card-desc">
-                        Explora cuatro ciberataques reconocidos a nivel mundial (Sniffer, Ransomware, DDoS e Inyección de Código) como paso previo al simulador.
+                        Explora cuatro de los ciberataques más reconocidos a nivel mundial (Sniffer, Ransomware, DDoS e Inyección de Código) como antesala al simulador.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./infografia_ciberataques.html" target="_blank" rel="noopener noreferrer">
@@ -950,19 +993,21 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 3.2 -->
+                <!-- Tarjeta 8 -->
                 <article class="resource-card" data-type="practica">
                     <div class="card-top">
-                        <span class="badge badge-practica">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                            Práctica interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">Simulador de la Tríada CID/CIA</h3>
                     <p class="card-desc">
-                        Analiza de forma interactiva cómo los 4 ciberataques de la infografía anterior comprometen la Confidencialidad, Integridad y Disponibilidad.
+                        Analiza en vivo cómo cada uno de los cuatro ciberataques de la infografía anterior compromete la Confidencialidad, Integridad o Disponibilidad.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-primary" href="./simulador_cid.html" target="_blank" rel="noopener noreferrer">
@@ -988,27 +1033,31 @@
                 </div>
                 <span class="session-tag">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <polyline points="12 6 12 12 16 14"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
-                    Sesiones 4 y 5 · Jueves 26 y Viernes 27 nov
+                    Sesiones 4 y 5 · Jueves 26 y Viernes 27 de noviembre
                 </span>
             </div>
 
             <div class="cards-grid">
-                <!-- Tarjeta 4.1 -->
+                <!-- Tarjeta 9 -->
                 <article class="resource-card" data-type="practica">
                     <div class="card-top">
-                        <span class="badge badge-practica">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                            Práctica interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">Detective de Phishing</h3>
                     <p class="card-desc">
-                        El reto consiste en descubrir 5 'banderas rojas' ocultas en un mensaje de correo electrónico señuelo.
+                        Descubre las 5 "banderas rojas" ocultas en un mensaje de correo electrónico señuelo para aprender a detectar intentos de suplantación.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-primary" href="./detective_de_phishing.html" target="_blank" rel="noopener noreferrer">
@@ -1021,20 +1070,22 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 4.2 -->
+                <!-- Tarjeta 10 -->
                 <article class="resource-card" data-type="infografia-interactiva">
                     <div class="card-top">
-                        <span class="badge badge-infografia-interactiva">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                            </svg>
-                            Infografía interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-infografia-interactiva">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                                Infografía interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">¿Qué es el motor zxcvbn?</h3>
                     <p class="card-desc">
-                        Infografía interactiva que explica cómo funciona el estimador realista de fortaleza de contraseñas zxcvbn frente a los validadores tradicionales.
+                        Infografía interactiva que explica cómo funciona el estimador realista de contraseñas zxcvbn frente a los validadores tradicionales.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-secondary" href="./infografia_zxcvbn.html" target="_blank" rel="noopener noreferrer">
@@ -1047,22 +1098,52 @@
                     </div>
                 </article>
 
-                <!-- Tarjeta 4.3 -->
+                <!-- Tarjeta 11 -->
                 <article class="resource-card" data-type="practica">
                     <div class="card-top">
-                        <span class="badge badge-practica">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                            Práctica interactiva
-                        </span>
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                        </div>
                     </div>
                     <h3 class="card-title">Laboratorio de Contraseñas con motor zxcvbn</h3>
                     <p class="card-desc">
-                        Evalúa en tiempo real la robustez de contraseñas y frases de contraseña, tiempos estimados de descifrado y políticas de servidor.
+                        Evalúa la fortaleza y el tiempo estimado de descifrado de contraseñas y passphrases en tiempo real, con diccionario contextual Español/UNAM.
                     </p>
                     <div class="card-footer">
                         <a class="card-action action-primary" href="./laboratorio_de_contrasenas_con_motor_zxcvbn.html" target="_blank" rel="noopener noreferrer">
+                            <span>Abrir práctica</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Tarjeta 12 (Nueva) -->
+                <article class="resource-card" data-type="practica">
+                    <div class="card-top">
+                        <div class="badge-group">
+                            <span class="badge badge-practica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Práctica interactiva
+                            </span>
+                            <span class="badge badge-nuevo">Nuevo</span>
+                        </div>
+                    </div>
+                    <h3 class="card-title">Laboratorio de Cifrado AES-256</h3>
+                    <p class="card-desc">
+                        Encripta y desencripta mensajes de texto o archivos locales (docx, pdf, etc.) directamente en el navegador mediante AES-256-GCM y una clave secreta compartida para intercambiar información protegida entre participantes.
+                    </p>
+                    <div class="card-footer">
+                        <a class="card-action action-primary" href="./laboratorio_cifrado_aes.html" target="_blank" rel="noopener noreferrer">
                             <span>Abrir práctica</span>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                 <line x1="5" y1="12" x2="19" y2="12"/>
@@ -1077,99 +1158,96 @@
     </main>
 
     <!-- =====================================================================
-         PIE DE PÁGINA SOBRIO
+         PIE DE PÁGINA INSTITUCIONAL
          ===================================================================== -->
     <footer class="site-footer">
-        <div class="footer-inner">
-            <div>
-                <p class="footer-brand">Taller Prácticas sobre Seguridad Informática · Clave PAC236</p>
-                <p class="footer-meta">Universidad Nacional Autónoma de México · 23 al 27 de noviembre de 2026</p>
-            </div>
-            <div class="footer-right">
-                Instructor: <strong>Mtro. Carlos Alberto Román Zamitiz</strong>
-            </div>
-        </div>
+        <p><strong>Universidad Nacional Autónoma de México</strong> · Taller Prácticas sobre Seguridad Informática (PAC236) · Material didáctico de uso académico</p>
     </footer>
 
     <!-- =====================================================================
-         LÓGICA INTERACTIVA DE FILTROS Y CONTADORES DINÁMICOS
+         LÓGICA INTERACTIVA DE FILTROS Y NAVEGACIÓN RÁPIDA (JS PURO)
          ===================================================================== -->
     <script>
         (function () {
-            const cards = Array.from(document.querySelectorAll('.resource-card'));
-            const sections = Array.from(document.querySelectorAll('.topic-section'));
-            const filterButtons = Array.from(document.querySelectorAll('.filter-btn'));
-            const quickLinks = Array.from(document.querySelectorAll('.quick-link'));
+            "use strict";
 
-            /**
-             * Calcula y actualiza los contadores dinámicos de cada filtro
-             * con base en las tarjetas presentes en el DOM.
-             */
-            function updateFilterCounts() {
-                const counts = {
-                    all: cards.length,
-                    practica: 0,
-                    'infografia-interactiva': 0,
-                    infografia: 0
-                };
+            try {
+                const cards = Array.from(document.querySelectorAll(".resource-card"));
+                const sections = Array.from(document.querySelectorAll(".topic-section"));
+                const filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
+                const quickLinks = Array.from(document.querySelectorAll(".quick-link"));
 
-                cards.forEach(card => {
-                    const type = card.getAttribute('data-type');
-                    if (Object.prototype.hasOwnProperty.call(counts, type)) {
-                        counts[type] += 1;
-                    }
+                /**
+                 * Recalcula y sincroniza los contadores de los botones de filtro
+                 * directamente a partir de las tarjetas declaradas en el DOM.
+                 */
+                function updateCounters() {
+                    const totals = {
+                        all: cards.length,
+                        practica: 0,
+                        "infografia-interactiva": 0,
+                        infografia: 0
+                    };
+
+                    cards.forEach(function (card) {
+                        const type = card.getAttribute("data-type");
+                        if (Object.prototype.hasOwnProperty.call(totals, type)) {
+                            totals[type] += 1;
+                        }
+                    });
+
+                    Object.keys(totals).forEach(function (key) {
+                        const counterEl = document.getElementById("count-" + key);
+                        if (counterEl) {
+                            counterEl.textContent = String(totals[key]);
+                        }
+                    });
+                }
+
+                /**
+                 * Filtra las tarjetas por tipo, oculta secciones vacías y atenúa
+                 * los botones correspondientes en la barra de navegación rápida.
+                 */
+                function applyFilter(selectedType) {
+                    filterButtons.forEach(function (btn) {
+                        const isActive = btn.getAttribute("data-filter") === selectedType;
+                        btn.classList.toggle("active", isActive);
+                        btn.setAttribute("aria-pressed", String(isActive));
+                    });
+
+                    cards.forEach(function (card) {
+                        const cardType = card.getAttribute("data-type");
+                        const shouldShow = selectedType === "all" || cardType === selectedType;
+                        card.classList.toggle("is-hidden", !shouldShow);
+                    });
+
+                    sections.forEach(function (section) {
+                        const visibleCount = section.querySelectorAll(".resource-card:not(.is-hidden)").length;
+                        const isEmpty = visibleCount === 0;
+                        section.classList.toggle("is-hidden", isEmpty);
+
+                        const targetLink = quickLinks.find(function (link) {
+                            return link.getAttribute("data-nav-target") === section.id;
+                        });
+                        if (targetLink) {
+                            targetLink.classList.toggle("is-dimmed", isEmpty);
+                        }
+                    });
+                }
+
+                // Registrar eventos en los botones de filtro
+                filterButtons.forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        applyFilter(btn.getAttribute("data-filter"));
+                    });
                 });
 
-                Object.entries(counts).forEach(([key, value]) => {
-                    const el = document.getElementById(`count-${key}`);
-                    if (el) {
-                        el.textContent = value;
-                    }
-                });
+                // Inicializar contadores al cargar
+                updateCounters();
+            } catch (error) {
+                // Falla segura: si ocurre algún error inesperado, las tarjetas permanecen visibles
+                console.error("Error al inicializar los filtros del portal:", error);
             }
-
-            /**
-             * Aplica el filtro seleccionado, oculta las tarjetas que no coinciden,
-             * oculta las secciones que queden vacías y atenúa sus anclas rápidas.
-             */
-            function applyFilter(selectedType) {
-                // Actualizar estado visual y accesible de los botones de filtro
-                filterButtons.forEach(btn => {
-                    const isActive = btn.getAttribute('data-filter') === selectedType;
-                    btn.classList.toggle('active', isActive);
-                    btn.setAttribute('aria-pressed', String(isActive));
-                });
-
-                // Mostrar u ocultar tarjetas según el filtro
-                cards.forEach(card => {
-                    const cardType = card.getAttribute('data-type');
-                    const shouldShow = selectedType === 'all' || cardType === selectedType;
-                    card.classList.toggle('is-hidden', !shouldShow);
-                });
-
-                // Ocultar temas sin tarjetas visibles y actualizar enlaces de navegación rápida
-                sections.forEach(section => {
-                    const visibleCards = section.querySelectorAll('.resource-card:not(.is-hidden)');
-                    const isEmpty = visibleCards.length === 0;
-                    section.classList.toggle('is-hidden', isEmpty);
-
-                    const navLink = quickLinks.find(link => link.getAttribute('data-nav-target') === section.id);
-                    if (navLink) {
-                        navLink.classList.toggle('is-dimmed', isEmpty);
-                    }
-                });
-            }
-
-            // Enlazar eventos de clic en botones de filtro
-            filterButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const filterValue = btn.getAttribute('data-filter');
-                    applyFilter(filterValue);
-                });
-            });
-
-            // Inicializar contadores al cargar
-            updateFilterCounts();
         })();
     </script>
 </body>
